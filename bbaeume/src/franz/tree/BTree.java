@@ -9,7 +9,7 @@ public class BTree {
 							//		mit k söhne speichert k-1 schlüssel
 	
 	private int numberOfTreeEntrys = 0;
-	private int numberOfTreeNodes = 0;
+	
 	private BNode root = null;
 	
 	public BTree(int ordnung) {

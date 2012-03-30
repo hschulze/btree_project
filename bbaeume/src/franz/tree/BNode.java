@@ -1,7 +1,5 @@
 package franz.tree;
 
-import java.awt.font.NumericShaper;
-
 public class BNode {
 
 	private int ordnung;
@@ -58,6 +56,9 @@ public class BNode {
 	
 	private NodeEntry insertEntryR(BNode node, NodeEntry entry) {
 		if(node.getNumberOfChildNodes() == 0) {													// wenn es ein Blatt ist
+			
+			if(node)
+			
 			for(int i = 0; i < ordnung - 1; i++) {
 				if(node.getEntrys()[i] != null) {												// wenn der Eintrag i existiert
 					if(entry.getKey() < node.getEntrys()[i].getKey()) {
@@ -79,7 +80,7 @@ public class BNode {
 			} else {
 				return null;
 			}
-		} else {
+		} else {																				// wenn es ein Knoten ist (kein Blatt)
 			
 		}
 		
