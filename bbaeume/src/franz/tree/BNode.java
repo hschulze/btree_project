@@ -70,16 +70,28 @@ public class BNode {
 			}
 			// Eingefuegt
 			if(node.getNumberOfEntrys() == ordnung) {											// Knoten voll
-				node.getEntrys()
+				resultValue = node.getEntrys().remove((int)Math.ceil(node.getEntrys().size() / 2));
 			} else {
-				return null;
+				resultValue = null;
 			}
 		} else {
 			// BNode ist ein Knoten
-			
+			for(int i = 0; i < node.getNumberOfChildNodes(); i++) {
+				if(entry.getKey() < node.getEntrys().get(i).getKey()) {
+					resultValue = insertEntryR(node.getChildNodes().get(i), entry);
+					break;
+				} else if(i+1 == node.getNumberOfChildNodes()) {
+					// Entry ist groeßer als alle Schluessel in dem Knoten
+					resultValue = insertEntryR(node.getChildNodes().get(i+1), entry);
+				}
+			}
+			if(resultValue != null) {
+				// das Einfuegen in den Kindknoten hat einen Eintrag zurueckgegeben, da der Kindknoten voll war
+				
+			}
 		}
 		
-		return node;
+		return resultValue;
 	}
 	
 	public BNode removeEntry(BNode node, NodeEntry entry) {
