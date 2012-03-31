@@ -8,20 +8,18 @@ public class BNode {
 	private int ordnung;
 	
 	private List<NodeEntry> entrys;
-	private List<BNode> childNodes;
 	
 	public BNode(int ordnung) {
 		this.ordnung = ordnung;
 		entrys = new LinkedList<NodeEntry>();
-		childNodes = new LinkedList<BNode>();
-	}
-	
-	public List<BNode> getChildNodes() {
-		return childNodes;
 	}
 	
 	public int getNumberOfChildNodes() {
-		return childNodes.size();
+		int size = 0;
+		for (NodeEntry entry : entrys) {
+			size += entry.getNumberOfChilds();
+		}
+		return size;
 	}
 	
 	public List<NodeEntry> getEntrys() {
@@ -40,8 +38,8 @@ public class BNode {
 			return null;
 		for(int i = 0; i < node.getNumberOfEntrys(); i++) {
 			if(key == node.getEntrys().get(i).getKey()) return node.getEntrys().get(i); 
-			if(key < node.getEntrys().get(i).getKey()) return searchEntry(node.getChildNodes().get(i), key);
-			if((i+1) == node.getNumberOfEntrys()) return searchEntry(node.getChildNodes().get(i+1), key);
+			if(key < node.getEntrys().get(i).getKey()) return searchEntry(node.getEntrys().get(i).getLowerChild(), key);
+			if((i+1) == node.getNumberOfEntrys()) return searchEntry(node.getEntrys().get(i).getHigherChild(), key);
 		}
 		return null;
 	}
@@ -53,7 +51,7 @@ public class BNode {
 	}
 	
 	private NodeEntry insertEntryR(BNode node, NodeEntry entry) {
-		NodeEntry resultValue = null;
+		NodeEntry overflowNode = null;
 		if(node.getNumberOfChildNodes() == 0) {
 			// BNode ist ein Blatt
 					
@@ -68,30 +66,58 @@ public class BNode {
 					break;
 				}
 			}
-			// Eingefuegt
-			if(node.getNumberOfEntrys() == ordnung) {											// Knoten voll
-				resultValue = node.getEntrys().remove((int)Math.ceil(node.getEntrys().size() / 2));
-			} else {
-				resultValue = null;
-			}
+			// Fertig mit eingefuegen
+			
 		} else {
 			// BNode ist ein Knoten
-			for(int i = 0; i < node.getNumberOfChildNodes(); i++) {
+			for (int i = 0; i < node.getNumberOfEntrys(); i++) {
 				if(entry.getKey() < node.getEntrys().get(i).getKey()) {
-					resultValue = insertEntryR(node.getChildNodes().get(i), entry);
+					// Entry ist kleiner als der Schluessel an Position i
+					overflowNode = insertEntryR(node.getEntrys().get(i).getLowerChild(), entry);
+					
+					if(overflowNode != null) {
+						// das Einfuegen in den Kindknoten hat einen Eintrag zurueckgegeben, da der Kindknoten voll war
+						node.getEntrys().get(i).setLowerChild(overflowNode.getHigherChild());
+						overflowNode.setHigherChild(null);
+						node.getEntrys().add(i, overflowNode);
+						overflowNode = null;
+					}
+					
 					break;
-				} else if(i+1 == node.getNumberOfChildNodes()) {
+				} else if(node.getEntrys().get(i).hasHigherChild()) {
 					// Entry ist groeßer als alle Schluessel in dem Knoten
-					resultValue = insertEntryR(node.getChildNodes().get(i+1), entry);
+					overflowNode = insertEntryR(node.getEntrys().get(i).getHigherChild(), entry);
+					
+					if(overflowNode != null) {
+						// das Einfuegen in den Kindknoten hat einen Eintrag zurueckgegeben, da der Kindknoten voll war
+						node.getEntrys().get(i).setHigherChild(null);
+						node.getEntrys().add(overflowNode);
+						overflowNode = null;
+					}
 				}
 			}
-			if(resultValue != null) {
-				// das Einfuegen in den Kindknoten hat einen Eintrag zurueckgegeben, da der Kindknoten voll war
-				
+		}
+		// Knoten voll?
+		if(node.getNumberOfEntrys() == ordnung) {											// Knoten voll -> teilen
+			int middle = node.getEntrys().size() / 2;
+			
+			node.getEntrys().get(middle-1).setHigherChild(node.getEntrys().get(middle).getLowerChild());	// linken Teilbaum vervollstaendigen
+			
+			overflowNode = node.getEntrys().remove(middle);									// mittlerer Knoten wird entfernt 
+						
+			BNode higherSubTree = new BNode(ordnung);										// neuer rechter Teilbaum
+			while(middle < node.getNumberOfEntrys()) {
+				insertEntryR(higherSubTree, node.getEntrys().get(middle + 1));
 			}
+			
+			overflowNode.setLowerChild(node);												// alter Knoten wird linker Teilbaum
+			overflowNode.setHigherChild(higherSubTree);										// neuer Knoten wird rechter Teilbaum
+			
+		} else {
+			overflowNode = null;
 		}
 		
-		return resultValue;
+		return overflowNode;
 	}
 	
 	public BNode removeEntry(BNode node, NodeEntry entry) {
