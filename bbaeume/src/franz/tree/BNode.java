@@ -1,39 +1,37 @@
 package franz.tree;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class BNode {
 
 	private int ordnung;
 	
-	private NodeEntry[] entrys;
-	private int numberOfEntrys = 0;
-	private BNode[] childNodes;
-	private int numberOfChildNodes = 0;
+	private List<NodeEntry> entrys;
+	private List<BNode> childNodes;
 	
 	public BNode(int ordnung) {
 		this.ordnung = ordnung;
-		entrys = new NodeEntry[ordnung - 1];
-		childNodes = new BNode[ordnung];
+		entrys = new LinkedList<NodeEntry>();
+		childNodes = new LinkedList<BNode>();
 	}
 	
-	public BNode[] getChildNodes() {
+	public List<BNode> getChildNodes() {
 		return childNodes;
 	}
 	
 	public int getNumberOfChildNodes() {
-		return numberOfChildNodes;
+		return childNodes.size();
 	}
 	
-	public NodeEntry[] getEntrys() {
+	public List<NodeEntry> getEntrys() {
 		return entrys;
 	}
 	
 	public int getNumberOfEntrys() {
-		return numberOfEntrys;
+		return entrys.size();
 	}
 	
-	public void setNumberOfEntrys(int numberOfEntrys) {
-		this.numberOfEntrys = numberOfEntrys;
-	}
 	public NodeEntry searchEntry(int key) {
 		return searchEntry(this, key);
 	}
@@ -41,9 +39,9 @@ public class BNode {
 		if(node == null) 
 			return null;
 		for(int i = 0; i < node.getNumberOfEntrys(); i++) {
-			if(key == node.entrys[i].getKey()) return node.entrys[i]; 
-			if(key < node.entrys[i].getKey()) return searchEntry(node.getChildNodes()[i], key);
-			if((i+1) == node.getNumberOfEntrys()) return searchEntry(node.getChildNodes()[i+1], key);
+			if(key == node.getEntrys().get(i).getKey()) return node.getEntrys().get(i); 
+			if(key < node.getEntrys().get(i).getKey()) return searchEntry(node.getChildNodes().get(i), key);
+			if((i+1) == node.getNumberOfEntrys()) return searchEntry(node.getChildNodes().get(i+1), key);
 		}
 		return null;
 	}
@@ -55,35 +53,29 @@ public class BNode {
 	}
 	
 	private NodeEntry insertEntryR(BNode node, NodeEntry entry) {
-		
+		NodeEntry resultValue = null;
 		if(node.getNumberOfChildNodes() == 0) {
 			// BNode ist ein Blatt
-			if(node.getNumberOfEntrys() == ordnung-1) {
-				// BNode ist voll
-			}
-			
+					
 			for(int i = 0; i < ordnung - 1; i++) {
-				if(node.getEntrys()[i] != null) {												// wenn der Eintrag i existiert
-					if(entry.getKey() < node.getEntrys()[i].getKey()) {
-						for(int j = node.getNumberOfEntrys() - 1; j > i; j--) {
-							node.getEntrys()[j] = node.getEntrys()[j-1];
-						}
-						node.getEntrys()[i] = entry;
+				if(node.getEntrys().get(i) != null) {												// wenn der Eintrag i existiert
+					if(entry.getKey() < node.getEntrys().get(i).getKey()) {
+						node.getEntrys().add(i, entry);
 						break;
 					}
 				} else {
-					node.getEntrys()[i] = entry;
+					node.getEntrys().add(i, entry);
 					break;
 				}
 			}
-			node.setNumberOfEntrys(node.getNumberOfEntrys()+1);									// Zaehler um eins erhoehen
 			// Eingefuegt
 			if(node.getNumberOfEntrys() == ordnung) {											// Knoten voll
-				
+				node.getEntrys()
 			} else {
 				return null;
 			}
-		} else {																				// wenn es ein Knoten ist (kein Blatt)
+		} else {
+			// BNode ist ein Knoten
 			
 		}
 		
