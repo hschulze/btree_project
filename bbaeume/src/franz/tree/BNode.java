@@ -55,9 +55,12 @@ public class BNode {
 	}
 	
 	private NodeEntry insertEntryR(BNode node, NodeEntry entry) {
-		if(node.getNumberOfChildNodes() == 0) {													// wenn es ein Blatt ist
-			
-			if(node)
+		
+		if(node.getNumberOfChildNodes() == 0) {
+			// BNode ist ein Blatt
+			if(node.getNumberOfEntrys() == ordnung-1) {
+				// BNode ist voll
+			}
 			
 			for(int i = 0; i < ordnung - 1; i++) {
 				if(node.getEntrys()[i] != null) {												// wenn der Eintrag i existiert
