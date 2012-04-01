@@ -36,7 +36,16 @@ public class BTree {
 		if(root == null) {
 			root = new BNode(ordnung);
 		}
-		root.insertEntryR(entry); 
+		BNode result = null;
+		try {
+			result = root.insertEntryR(entry);
+		} catch(Exception e) {
+			//System.out.println("Ex");
+			return false;
+		}
+		
+		if(result != null)
+			root = result;
 		
 		numberOfTreeEntrys++;
 		return true;

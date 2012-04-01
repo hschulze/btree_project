@@ -11,7 +11,7 @@ public class BTreeStarter {
 
 	public static void main(String[] args) {
 		System.out.printf("%20s%n", "Initiale Erzeugung des B-Baums");
-		BTree tree = new BTree(readInt("Grad k des B-Baums [3]: ", 3));
+		BTree tree = new BTree(readInt("Ordnung m des B-Baums [3]: ", 3));
 		
 		int choice = -1;
 		
@@ -90,7 +90,7 @@ public class BTreeStarter {
 	
 	public static void fillWithRandomData(BTree tree) {
 		int numberOfValues = readInt("Anzahl der Schlüssel [20]: ", 20);
-		int maxValue = readInt("Maximaler Wert [9999]: ", 9999);
+		int maxValue = readInt("Maximaler Wert [99]: ", 99);
 		int seed = readInt("Seed [4711]: ", 4711);
 		
 		Random rand = new Random((long) seed);

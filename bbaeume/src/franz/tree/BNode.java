@@ -44,26 +44,33 @@ public class BNode {
 		return null;
 	}
 	
-	public NodeEntry insertEntryR(NodeEntry entry) {
-		NodeEntry resultEntry = searchEntry(entry.getKey()); 
-		if(resultEntry != null) return resultEntry;											// Schluessel schon vorhanden
+	public BNode insertEntryR(NodeEntry entry) throws Exception {
+		if(searchEntry(entry.getKey()) != null) throw new Exception("Schluessel bereits vorhanden");											// Schluessel schon vorhanden
 		
-		resultEntry = insertEntryR(this, entry);
-		return resultEntry;
+		NodeEntry resultEntry = insertEntryR(this, entry);
+		if(resultEntry != null) {
+			// Neuer Wurzelknoten
+			BNode newRoot = new BNode(ordnung);
+			newRoot.insertEntryR(resultEntry);
+			return newRoot;
+		}
+		return this;
 	}
 	
 	private NodeEntry insertEntryR(BNode node, NodeEntry entry) {
-		NodeEntry overflowNode = null;
+		NodeEntry overflowEntry = null;
 		if(node.getNumberOfChildNodes() == 0) {
 			// BNode ist ein Blatt
 					
 			for(int i = 0; i < ordnung; i++) {
 				if(node.getEntrys().size() > i) {												// wenn der Eintrag i existiert
 					if(entry.getKey() < node.getEntrys().get(i).getKey()) {
+						entry.setNode(node);
 						node.getEntrys().add(i, entry);
 						break;
 					}
 				} else {
+					entry.setNode(node);
 					node.getEntrys().add(i, entry);
 					break;
 				}
@@ -75,27 +82,30 @@ public class BNode {
 			for (int i = 0; i < node.getNumberOfEntrys(); i++) {
 				if(entry.getKey() < node.getEntrys().get(i).getKey()) {
 					// Entry ist kleiner als der Schluessel an Position i
-					overflowNode = insertEntryR(node.getEntrys().get(i).getLowerChild(), entry);
+					overflowEntry = insertEntryR(node.getEntrys().get(i).getLowerChild(), entry);
 					
-					if(overflowNode != null) {
+					if(overflowEntry != null) {
 						// das Einfuegen in den Kindknoten hat einen Eintrag zurueckgegeben, da der Kindknoten voll war
-						node.getEntrys().get(i).setLowerChild(overflowNode.getHigherChild());
-						overflowNode.setHigherChild(null);
-						node.getEntrys().add(i, overflowNode);
-						overflowNode = null;
+						node.getEntrys().get(i).setLowerChild(overflowEntry.getHigherChild());
+						overflowEntry.setHigherChild(null);
+						overflowEntry.setNode(node);
+						node.getEntrys().add(i, overflowEntry);
+						overflowEntry = null;
 					}
 					
 					break;
 				} else if(node.getEntrys().get(i).hasHigherChild()) {
 					// Entry ist groeßer als alle Schluessel in dem Knoten
-					overflowNode = insertEntryR(node.getEntrys().get(i).getHigherChild(), entry);
+					overflowEntry = insertEntryR(node.getEntrys().get(i).getHigherChild(), entry);
 					
-					if(overflowNode != null) {
+					if(overflowEntry != null) {
 						// das Einfuegen in den Kindknoten hat einen Eintrag zurueckgegeben, da der Kindknoten voll war
 						node.getEntrys().get(i).setHigherChild(null);
-						node.getEntrys().add(overflowNode);
-						overflowNode = null;
+						overflowEntry.setNode(node);
+						node.getEntrys().add(overflowEntry);
+						overflowEntry = null;
 					}
+					break;
 				}
 			}
 		}
@@ -105,21 +115,21 @@ public class BNode {
 			
 			node.getEntrys().get(middle-1).setHigherChild(node.getEntrys().get(middle).getLowerChild());	// linken Teilbaum vervollstaendigen
 			
-			overflowNode = node.getEntrys().remove(middle);									// mittlerer Knoten wird entfernt 
-						
+			overflowEntry = node.getEntrys().remove(middle);								// mittlerer Knoten wird entfernt 
+			overflowEntry.setNode(null);
 			BNode higherSubTree = new BNode(ordnung);										// neuer rechter Teilbaum
 			while(middle < node.getNumberOfEntrys()) {
 				insertEntryR(higherSubTree, node.getEntrys().remove(middle));
 			}
 			
-			overflowNode.setLowerChild(node);												// alter Knoten wird linker Teilbaum
-			overflowNode.setHigherChild(higherSubTree);										// neuer Knoten wird rechter Teilbaum
+			overflowEntry.setLowerChild(node);												// alter Knoten wird linker Teilbaum
+			overflowEntry.setHigherChild(higherSubTree);										// neuer Knoten wird rechter Teilbaum
 			
 		} else {
-			overflowNode = null;
+			overflowEntry = null;
 		}
 		
-		return overflowNode;
+		return overflowEntry;
 	}
 	
 	public BNode removeEntry(BNode node, NodeEntry entry) {

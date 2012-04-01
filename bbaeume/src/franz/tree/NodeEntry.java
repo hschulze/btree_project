@@ -5,6 +5,8 @@ public class NodeEntry {
 	private int key;
 	private String data;
 	
+	private BNode node = null;
+	
 	private BNode lowerChild = null;
 	
 	private BNode higherChild = null;
@@ -63,6 +65,14 @@ public class NodeEntry {
 	public boolean hasHigherChild() {
 		if(higherChild != null) return true;
 		return false;
+	}
+	
+	public BNode getNode() {
+		return node;
+	}
+
+	public void setNode(BNode node) {
+		this.node = node;
 	}
 	
 }
