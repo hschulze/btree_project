@@ -90,7 +90,8 @@ public class BTreeStarter {
 	
 	public static void fillWithRandomData(BTree tree) {
 		int numberOfValues = readInt("Anzahl der Schlüssel [20]: ", 20);
-		int maxValue = readInt("Maximaler Wert [99]: ", 99);
+		int minValue = numberOfValues;
+		int maxValue = readInt("Maximaler Wert [" + minValue + "]: ", minValue);
 		int seed = readInt("Seed [4711]: ", 4711);
 		
 		Random rand = new Random((long) seed);
