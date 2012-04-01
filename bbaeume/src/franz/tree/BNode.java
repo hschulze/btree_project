@@ -16,7 +16,7 @@ public class BNode {
 	
 	public int getNumberOfChildNodes() {
 		int size = 0;
-		for (NodeEntry entry : entrys) {
+		for(NodeEntry entry : entrys) {
 			size += entry.getNumberOfChilds();
 		}
 		return size;
@@ -44,10 +44,16 @@ public class BNode {
 		return null;
 	}
 	
-	public NodeEntry insertEntryR(NodeEntry entry) {
-		NodeEntry searchResult = searchEntry(entry.getKey()); 
-		if(searchResult != null) return searchResult;											// Schluessel schon vorhanden
-		return insertEntryR(this, entry);
+	public boolean insertEntryR(NodeEntry entry) {
+		NodeEntry resultEntry = searchEntry(entry.getKey()); 
+		if(resultEntry != null) return false;											// Schluessel schon vorhanden
+		
+		resultEntry = insertEntryR(this, entry);
+		if(resultEntry != null) {
+			entrys = new LinkedList<NodeEntry>();
+			entrys.add(resultEntry);
+		}
+		return true;
 	}
 	
 	private NodeEntry insertEntryR(BNode node, NodeEntry entry) {
@@ -55,8 +61,8 @@ public class BNode {
 		if(node.getNumberOfChildNodes() == 0) {
 			// BNode ist ein Blatt
 					
-			for(int i = 0; i < ordnung - 1; i++) {
-				if(node.getEntrys().get(i) != null) {												// wenn der Eintrag i existiert
+			for(int i = 0; i < ordnung; i++) {
+				if(node.getEntrys().size() > i) {												// wenn der Eintrag i existiert
 					if(entry.getKey() < node.getEntrys().get(i).getKey()) {
 						node.getEntrys().add(i, entry);
 						break;
@@ -107,7 +113,7 @@ public class BNode {
 						
 			BNode higherSubTree = new BNode(ordnung);										// neuer rechter Teilbaum
 			while(middle < node.getNumberOfEntrys()) {
-				insertEntryR(higherSubTree, node.getEntrys().get(middle + 1));
+				insertEntryR(higherSubTree, node.getEntrys().remove(middle));
 			}
 			
 			overflowNode.setLowerChild(node);												// alter Knoten wird linker Teilbaum
