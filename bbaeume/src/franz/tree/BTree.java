@@ -1,9 +1,5 @@
 package franz.tree;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-
 public class BTree {
 
 	private int ordnung;	// Knoten hat 
@@ -40,7 +36,7 @@ public class BTree {
 		if(root == null) {
 			root = new BNode(ordnung);
 		}
-		root.insertEntryR(entry);
+		root.insertEntryR(entry); 
 		
 		numberOfTreeEntrys++;
 		return true;
@@ -55,39 +51,30 @@ public class BTree {
 		numberOfTreeEntrys--;
 		return true;
 	}
-	/**
-	 * Werte bis 99 werden korrekt angezeigt
-	 */
+	
 	public void showTree() {
-		System.out.println("Ausgabe des Baums:");
-		int stellen = 3;
-		int maxRowElements = (int) (Math.pow(ordnung, getMaxHeight()) - Math.pow(ordnung, getMaxHeight()-1));
-		//int maxRowWidth = maxRowElements * stellen;
-		
-		List<int[]> rowList = new LinkedList<int[]>();
-		for(int i = 0; i < getMaxHeight(); i++) {
-			rowList.add(new int[maxRowElements]);
-		}
-		
-		showNode(rowList, root, 0, 0);
-		
-		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < getMaxHeight(); i++) {
-			for(int j = 0; j < ((i+1)*(ordnung-1)); j++) { 
-				sb.append(String.format("", root.getEntrys()));
-			}
-		}
+		System.out.println("Ausgabe des Baums:\n");
+		System.out.println("#########################################");
+		showNode(root, 0);
+		System.out.println("#########################################");
 	}
 	
-	private void showNode(List<int[]> rowList, BNode node, int depth, int rowNode) {
-		// Schluessel des Node abarbeiten
-		int maxRowElements = rowList.get(0).length;
-		int maxElementsInRow = (int) (Math.pow(ordnung, depth) - Math.pow(ordnung, depth-1));  
-		
-		
-		int nodeStartPos =  maxRowElements / maxElementsInRow * rowNode;
-		for(int i = 0; i < ordnung-1; i++) {
-			rowList.get(depth)[]
+	private void showNode(BNode node, int depth) {
+		if(node != null) {
+			for(int i = 0; i < node.getNumberOfEntrys(); i++) {
+				showNode(node.getEntrys().get(i).getLowerChild(), depth + 1);
+				
+				StringBuilder sb = new StringBuilder();
+				for(int j = 0; j < depth; j++) {
+					sb.append('-');
+				}
+				sb.append(node.getEntrys().get(i).getKey());
+				System.out.println(sb.toString());
+				
+				if(node.getEntrys().get(i).hasHigherChild()) {
+					showNode(node.getEntrys().get(i).getHigherChild(), depth + 1);
+				}
+			}
 		}
 	}
 	
