@@ -53,7 +53,7 @@ public class BTree {
 	}
 	
 	public void showTree() {
-		System.out.println("Ausgabe des Baums:\n");
+		System.out.println("Ausgabe des Baums:");
 		System.out.println("#########################################");
 		showNode(root, 0);
 		System.out.println("#########################################");

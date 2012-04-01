@@ -44,16 +44,12 @@ public class BNode {
 		return null;
 	}
 	
-	public boolean insertEntryR(NodeEntry entry) {
+	public NodeEntry insertEntryR(NodeEntry entry) {
 		NodeEntry resultEntry = searchEntry(entry.getKey()); 
-		if(resultEntry != null) return false;											// Schluessel schon vorhanden
+		if(resultEntry != null) return resultEntry;											// Schluessel schon vorhanden
 		
 		resultEntry = insertEntryR(this, entry);
-		if(resultEntry != null) {
-			entrys = new LinkedList<NodeEntry>();
-			entrys.add(resultEntry);
-		}
-		return true;
+		return resultEntry;
 	}
 	
 	private NodeEntry insertEntryR(BNode node, NodeEntry entry) {
