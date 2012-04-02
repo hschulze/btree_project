@@ -8,8 +8,9 @@ import franz.utils.ConsoleMenu;
 
 public class BTreeStarter {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) { 
 		ConsoleMenu console = new ConsoleMenu();
+
 		
 		console.addMenuItem("Erzeuge einen neuen B-Baum", 1);
 		console.addMenuItem("Zeichne Baum", 2);
