@@ -1,26 +1,37 @@
 package franz;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.Random;
 
 import franz.tree.BTree;
 import franz.tree.NodeEntry;
+import franz.utils.ConsoleMenu;
 
 public class BTreeStarter {
 
 	public static void main(String[] args) {
+		ConsoleMenu console = new ConsoleMenu();
+		
+		console.addMenuItem("Erzeuge einen neuen B-Baum", 1);
+		console.addMenuItem("Zeichne Baum", 2);
+		console.addMenuItem("Fuelle den Baum mit Zufallszahlen", 3);
+		console.addMenuItem("Zahl hinzufuegen", 4);
+		console.addMenuItem("Zahl suchen", 6);
+		console.addMenuItem("Zahl loeschen", 7);
+		console.addMenuItem("Zeige B-Baum-Statistik", 9);
+		console.addMenuItem("Beenden", 0);
+		
 		System.out.printf("%20s%n", "Initiale Erzeugung des B-Baums");
-		BTree tree = new BTree(readInt("Ordnung m des B-Baums [3]: ", 3));
+		BTree tree = new BTree(ConsoleMenu.readInt("Ordnung m des B-Baums [3]: ", 3, 3));
 		
 		int choice = -1;
 		
 		while(choice != 0) {
-			choice = showMenu();
-			System.out.print("+++++++++++++++++++++++++++++++++++++++++\n");
+			choice = console.showMenu();
+			System.out.print("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
 			//System.out.println("Auswahl: " + choice);
 			switch (choice) {
 				case 1:
+					tree = new BTree(ConsoleMenu.readInt("Ordnung m des B-Baums [3]: ", 3, 2));
 					break;
 				case 2:
 					tree.showTree();
@@ -30,9 +41,13 @@ public class BTreeStarter {
 					break;
 				case 4:
 					addOneNumber(tree);
+					tree.showTree();
 					break;
 				case 6:
 					searchKey(tree);
+					break;
+				case 7:
+					deleteKey(tree);
 					break;
 				case 9:
 					tree.showStat();
@@ -48,64 +63,36 @@ public class BTreeStarter {
 		} catch (Exception e) {}
 		System.out.println("Beendet...");
 	}
-	
-	private static int showMenu() {
-		String menu = 	"+++++++++++++++++++++++++++++++++++++++++\n" +
-						//"Erzeuge einen B-Baum                  [1]\n" +
-						"Zeichne Baum                          [2]\n" +
-						"Fuelle den Baum mit Zufallsdaten      [3]\n" +
-						"Fuege eine Zahl hinzu                 [4]\n" +
-						"\n" +
-						"Suche Zahl                            [6]\n" +
-						"Zeige Statistik                       [9]\n" +
-						"\n" +
-						"Beenden                               [0]\n" +
-						"-----------------------------------------\n" +
-						"Auswahl: ";
-		return readInt(menu);
-	}
-	
-	private static int readInt(String text) {
-		return readInt(text, -1);
-	}
-	
-	private static int readInt(String text, int defaultValue) {
-		int result;
-		do {
-			System.out.printf("%40s", text);
-			try {
-				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-				result = Integer.parseInt(in.readLine());
-			} catch (Exception e) {
-				if(defaultValue == -1) {
-					System.out.println("Fehler bei der Eingabe. Bitte erneut versuchen.");
-					result = -1;
-				} else {
-					result = defaultValue;
-				}
-			}
-		} while (result == -1);
-		return result;
-	}
-	
+
 	public static void fillWithRandomData(BTree tree) {
-		int numberOfValues = readInt("Anzahl der Schlüssel [20]: ", 20);
+		int numberOfValues = ConsoleMenu.readInt("Anzahl der Schlüssel [20]: ", 20);
 		int minValue = numberOfValues;
-		int maxValue = readInt("Maximaler Wert [" + minValue + "]: ", minValue);
-		int seed = readInt("Seed [4711]: ", 4711);
+		int maxValue = ConsoleMenu.readInt("Maximaler Wert [" + minValue + "]: ", minValue, minValue);
+		int seed = ConsoleMenu.readInt("Seed [4711]: ", 4711);
 		
 		Random rand = new Random((long) seed);
+		int randNumber = 0;
 		boolean successfulInsert;
+		int failedInserts = 0;
 		for(int i = 0; i < numberOfValues; i++) {
 			successfulInsert = false;
 			do {
-				successfulInsert = tree.insertEntryR(new NodeEntry(rand.nextInt(maxValue)));
-			} while(!successfulInsert);
+				randNumber = rand.nextInt(maxValue);
+				successfulInsert = tree.insertEntryR(new NodeEntry(randNumber));
+				failedInserts++;
+			} while(!successfulInsert && failedInserts < 100);
+			//System.out.println(randNumber);
+			if(failedInserts == 100) {
+				System.out.println("Fehler: Zu viele (100) Einfuegeversuche fehlgeschlagen!\n"+
+								   "        Es wurden " + (i == 0 ? "keine": "nur " + i) + " Zahlen eingefuegt.");
+				break;
+			}
+			failedInserts = 0;
 		}
 	}
 	
 	public static void addOneNumber(BTree tree) {
-		if(tree.insertEntryR(new NodeEntry(readInt("Einzufuegende Zahl: ")))) {
+		if(tree.insertEntryR(new NodeEntry(ConsoleMenu.readInt("Einzufuegende Zahl: ")))) {
 			System.out.printf("%40s%n", "Zahl erfolgreich eingefuegt");
 		} else {
 			System.out.printf("%40s%n", "Zahl nicht eingefuegt");
@@ -114,10 +101,17 @@ public class BTreeStarter {
 	}
 	
 	public static void searchKey(BTree tree) {
-		if(tree.searchKeyR(readInt("Schluessel: "))) {
-			System.out.printf("%40s%n", "Schluessel gefunden");
+		NodeEntry searchResult = tree.searchKeyR(ConsoleMenu.readInt("Zu suchender Schluessel: "));
+		if(searchResult != null) {
+			//System.out.printf("%40s\n", "Schluessel gefunden");
+			System.out.printf("Schluessel mit dem Key %d gefunden\n und er enhaelt folgende Daten:\n %s", searchResult.getKey(), searchResult.getData());
 		} else {
 			System.out.printf("%40s%n", "Schluessel nicht gefunden");
 		}
+	}
+	
+	private static void deleteKey(BTree tree) {
+		// TODO Auto-generated method stub
+		
 	}
 }

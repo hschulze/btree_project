@@ -43,7 +43,11 @@ public class NodeEntry {
 	public void setLowerChild(BNode lowerChild) {
 		this.lowerChild = lowerChild;
 	}
-
+	
+	public boolean hasLowerChild() {
+		if(lowerChild != null) return true;
+		return false;
+	}
 	/**
 	 * HigherChild ist nur gesetzt, wenn es das letzte/groesste Element in einem Knoten ist
 	 * @param higherChild
