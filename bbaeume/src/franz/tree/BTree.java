@@ -1,6 +1,5 @@
 package franz.tree;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class BTree {
@@ -35,9 +34,8 @@ public class BTree {
 		}
 		BNode result = null;
 		try {
-			result = root.insertEntryR(entry);
+			result = root.insertEntry(entry);
 		} catch(Exception e) {
-			//System.out.println("Ex");
 			return false;
 		}
 		
@@ -53,16 +51,14 @@ public class BTree {
 	 * @return true, if key is removed successful
 	 */
 	public boolean removeEntry(NodeEntry entry) {
-		root.removeEntry(root, entry);
+		root.removeEntry(entry);
 		numberOfTreeEntrys--;
 		return true;
 	}
 	
 	public void showTree() {
 		System.out.println("Ausgabe des Baums:");
-		System.out.println("#########################################");
-		showNode(root, 0);
-		System.out.println("#########################################");
+		//showNode(root, 0);
 		
 		// Richtige Baumstruktur
 		/*
@@ -99,13 +95,21 @@ public class BTree {
 	private void showNode3(BNode node) {
 		int maxHeight = getMaxHeight();
 		StringBuilder sb = new StringBuilder();
+		
+		for(int i = 0; i < getWidth(root) + 24; i++) {
+			sb.append('#');
+		}
+		String border = sb.toString();
+		System.out.println(border);
+		sb = new StringBuilder();
 		for(int i = 1; i <= maxHeight; ++i) {
-			sb.append(String.format("Tiefe %2d |", i));
+			sb.append(String.format("# Tiefe %2d |", i));
 			printLine(sb, node, i);
-			sb.append(String.format("| Tiefe %2d", i));
+			sb.append(String.format("| Tiefe %2d #", i));
 			sb.append("\n");
 		}
-		System.out.println(sb.toString());
+		System.out.print(sb.toString());
+		System.out.println(border);
 	}
 	private void printLine(StringBuilder sb, BNode node, int depth) {
 		if(node == null)
