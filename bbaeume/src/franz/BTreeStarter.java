@@ -39,6 +39,7 @@ public class BTreeStarter {
 					break;
 				case 3:
 					fillWithRandomData(tree);
+					tree.showTree();
 					break;
 				case 4:
 					addOneNumber(tree);
@@ -49,6 +50,7 @@ public class BTreeStarter {
 					break;
 				case 7:
 					deleteKey(tree);
+					tree.showTree();
 					break;
 				case 9:
 					tree.showStat();
@@ -79,7 +81,7 @@ public class BTreeStarter {
 			successfulInsert = false;
 			do {
 				randNumber = rand.nextInt(maxValue);
-				successfulInsert = tree.insertEntryR(new NodeEntry(randNumber));
+				successfulInsert = tree.insertEntry(new NodeEntry(randNumber));
 				failedInserts++;
 			} while(!successfulInsert && failedInserts < 100);
 			//System.out.println(randNumber);
@@ -93,10 +95,10 @@ public class BTreeStarter {
 	}
 	
 	public static void addOneNumber(BTree tree) {
-		if(tree.insertEntryR(new NodeEntry(ConsoleMenu.readInt("Einzufuegende Zahl: ")))) {
-			System.out.printf("%40s%n", "Zahl erfolgreich eingefuegt");
+		if(tree.insertEntry(new NodeEntry(ConsoleMenu.readInt("Einzufuegender Schluessel: ")))) {
+			System.out.printf("%40s%n", "Schluessel erfolgreich eingefuegt");
 		} else {
-			System.out.printf("%40s%n", "Zahl nicht eingefuegt");
+			System.out.printf("%40s%n", "Schluessel nicht eingefuegt");
 		}
 			
 	}
@@ -104,7 +106,6 @@ public class BTreeStarter {
 	public static void searchKey(BTree tree) {
 		NodeEntry searchResult = tree.searchKeyR(ConsoleMenu.readInt("Zu suchender Schluessel: "));
 		if(searchResult != null) {
-			//System.out.printf("%40s\n", "Schluessel gefunden");
 			System.out.printf("Schluessel mit dem Key %d gefunden\n und er enhaelt folgende Daten:\n %s", searchResult.getKey(), searchResult.getData());
 		} else {
 			System.out.printf("%40s%n", "Schluessel nicht gefunden");
@@ -112,7 +113,11 @@ public class BTreeStarter {
 	}
 	
 	private static void deleteKey(BTree tree) {
-		// TODO Auto-generated method stub
-		
+		int keyToDelete = ConsoleMenu.readInt("Zu loeschender Schluessel: ", -1, 0);
+		if(tree.removeEntry(keyToDelete)) {
+			System.out.printf("%40s%n", "Schluessel erfolgreich geloescht");
+		} else {
+			System.out.printf("%40s%n", "Schluessel nicht geloescht");
+		}
 	}
 }
