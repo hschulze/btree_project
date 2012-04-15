@@ -16,10 +16,19 @@ public class BTree {
 		this.ordnung = ordnung;
 	}
 
-	public NodeEntry searchKeyR(int key) {
-		if (root == null)
+	public NodeEntry searchKey(int key) {
+		return searchKey(root, key);
+	}
+	
+	private NodeEntry searchKey(BNode node, int key) {
+		if(node == null) 
 			return null;
-		return root.searchEntry(key);
+		for(int i = 0; i < node.getNumberOfEntrys(); i++) {
+			if(key == node.getEntrys().get(i).getKey()) return node.getEntrys().get(i); 
+			if(key < node.getEntrys().get(i).getKey()) return searchKey(node.getEntrys().get(i).getLowerChild(), key);
+			if((i+1) == node.getNumberOfEntrys()) return searchKey(node.getEntrys().get(i).getHigherChild(), key);
+		}
+		return null;
 	}
 
 	/**
@@ -28,20 +37,96 @@ public class BTree {
 	 * @return true, if key is inserted successful
 	 */
 	public boolean insertEntry(NodeEntry entry) {
-		if (root == null) {
-			root = new BNode(ordnung);
+		if (root == null) {							// Noch kein Baum vorhanden
+			root = new BNode();
 		}
-		BNode result = null;
-		try {
-			result = root.insertEntry(entry);
-		} catch (Exception e) {
+		if(searchKey(entry.getKey()) != null) {	// Schluessel schon vorhanden
 			return false;
 		}
+		
+		NodeEntry result = insertEntry(root, entry);
+		
 		if (result != null) {
-			root = result;
+			root = new BNode();
+			insertEntry(root, result);
 		}
 		numberOfTreeEntrys++;
 		return true;
+	}
+	
+	private NodeEntry insertEntry(BNode node, NodeEntry entry) {
+		NodeEntry overflowEntry = null;
+		if(node.getNumberOfChildNodes() == 0) {
+			// BNode ist ein Blatt
+					
+			for(int i = 0; i < ordnung; i++) {
+				if(node.getEntrys().size() > i) {												// wenn der Eintrag i existiert
+					if(entry.getKey() < node.getEntrys().get(i).getKey()) {
+						entry.setNode(node);
+						node.getEntrys().add(i, entry);
+						break;
+					}
+				} else {
+					entry.setNode(node);
+					node.getEntrys().add(i, entry);
+					break;
+				}
+			}
+			// Fertig mit eingefuegen
+			
+		} else {
+			// BNode ist ein Knoten
+			for (int i = 0; i < node.getNumberOfEntrys(); i++) {
+				if(entry.getKey() < node.getEntrys().get(i).getKey()) {
+					// Entry ist kleiner als der Schluessel an Position i
+					overflowEntry = insertEntry(node.getEntrys().get(i).getLowerChild(), entry);
+					
+					if(overflowEntry != null) {
+						// das Einfuegen in den Kindknoten hat einen Eintrag zurueckgegeben, da der Kindknoten voll war
+						node.getEntrys().get(i).setLowerChild(overflowEntry.getHigherChild());
+						overflowEntry.setHigherChild(null);
+						overflowEntry.setNode(node);
+						node.getEntrys().add(i, overflowEntry);
+						overflowEntry = null;
+					}
+					
+					break;
+				} else if(node.getEntrys().get(i).hasHigherChild()) {
+					// Entry ist groeßer als alle Schluessel in dem Knoten
+					overflowEntry = insertEntry(node.getEntrys().get(i).getHigherChild(), entry);
+					
+					if(overflowEntry != null) {
+						// das Einfuegen in den Kindknoten hat einen Eintrag zurueckgegeben, da der Kindknoten voll war
+						node.getEntrys().get(i).setHigherChild(null);
+						overflowEntry.setNode(node);
+						node.getEntrys().add(overflowEntry);
+						overflowEntry = null;
+					}
+					break;
+				}
+			}
+		}
+		// Knoten voll?
+		if(node.getNumberOfEntrys() == ordnung) {											// Knoten voll -> teilen
+			int middle = node.getNumberOfEntrys() / 2;
+			
+			node.getEntrys().get(middle-1).setHigherChild(node.getEntrys().get(middle).getLowerChild());	// linken Teilbaum vervollstaendigen
+			
+			overflowEntry = node.getEntrys().remove(middle);								// mittlerer Knoten wird entfernt 
+			overflowEntry.setNode(null);
+			BNode higherSubTree = new BNode();										// neuer rechter Teilbaum
+			while(middle < node.getNumberOfEntrys()) {
+				insertEntry(higherSubTree, node.getEntrys().remove(middle));
+			}
+			
+			overflowEntry.setLowerChild(node);												// alter Knoten wird linker Teilbaum
+			overflowEntry.setHigherChild(higherSubTree);									// neuer Knoten wird rechter Teilbaum
+			
+		} else {
+			overflowEntry = null;
+		}
+		
+		return overflowEntry;
 	}
 
 	/**
@@ -49,46 +134,104 @@ public class BTree {
 	 * @param key
 	 * @return true, if key is removed successful
 	 */
-	public boolean removeEntry(int key) {
-		if (root == null) {
-			return false;
+	public NodeEntry removeEntry(int key) {
+		if (searchKey(key) == null) {
+			return null;
 		}
-		BNode result = null;
-		try {
-			result = root.removeEntry(key);
-		} catch (Exception e) {
-			return false;
-		}
-		if (result != null) {
-			root = result;
-		}
+		NodeEntry result = removeKey(root, key);
+		
 		numberOfTreeEntrys--;
-		return true;
+		return result;
+	}
+	/**
+	 * Funktion geht davon aus, dass node oder seine Unterbaeume den Schluessel enthalten
+	 * @param node
+	 * @param key
+	 * @return
+	 */
+	private NodeEntry removeKey(BNode node, int key) {
+		NodeEntry returnValue = null;
+		if(node.containsKey(key) > 0) {							// Knoten enthaelt Schluessel
+			
+			if(node.getNumberOfChildNodes() > 0) {				// Knoten mit Schluessel ist ein Blatt
+				for(int i = 0; i < node.getNumberOfEntrys(); i++) {
+					if(node.getEntrys().get(i).getKey() == key) {
+						returnValue = node.getEntrys().remove(i);
+						break;
+					}
+				}
+			} else {											// Knoten mit Schluessel ist KEIN Blatt
+				for(int i = 0; i < node.getNumberOfEntrys(); i++) {
+					if(node.getEntrys().get(i).getKey() == key) {
+						
+						NodeEntry previousGreatestEntry = getGreatestPreviousEntry(node.getEntrys().get(i).getLowerChild());
+						NodeEntry nextSmallestEntry = null;
+						if(node.getEntrys().get(i).hasHigherChild()) {
+							nextSmallestEntry = getSmallestNextEntry(node.getEntrys().get(i).getHigherChild());
+						} else {
+							nextSmallestEntry = getSmallestNextEntry(node.getEntrys().get(i + 1).getLowerChild());
+						}
+						int minEntrys = (int) Math.ceil(ordnung/2) - 1;
+						
+						if(previousGreatestEntry.getNode().getNumberOfEntrys() == minEntrys && 
+								nextSmallestEntry.getNode().getNumberOfEntrys() == minEntrys) {
+							verschmelzen der teilbaeume
+						} else if(previousGreatestEntry.getNode().getNumberOfEntrys() > nextSmallestEntry.getNode().getNumberOfEntrys()) {
+							returnValue = node.getEntrys().set(i, removeEntry(previousGreatestEntry.getKey()));
+						} else {
+							returnValue = node.getEntrys().set(i, removeEntry(nextSmallestEntry.getKey()));
+						}
+						break;
+					}
+				}
+			}
+			
+		} else {												// Knoten enthaelt Schluessel NICHT
+			// Naechsten Knoten herausfinden
+			BNode nextNode = null;
+			for(int i = 0; i < node.getNumberOfEntrys(); i++) {
+				if(key < node.getEntrys().get(i).getKey()) {
+					nextNode = node.getEntrys().get(i).getLowerChild();
+					break;
+				} else if(node.getEntrys().get(i).hasHigherChild()) {
+					nextNode = node.getEntrys().get(i).getHigherChild();
+					break;
+				}
+			}
+			
+			
+		}
+		
+		return returnValue;
+	}
+	
+	/**
+	 * Methode zum Auffinden des vorherigen groesseren Schluessels im linken Teilbaum
+	 * @param node
+	 * @return
+	 */
+	private NodeEntry getGreatestPreviousEntry(BNode node) {
+		if(node.getNumberOfChildNodes() > 0)
+			return getGreatestPreviousEntry(node.getEntrys().get(node.getNumberOfEntrys()-1).getHigherChild());
+		else
+			return node.getEntrys().get(node.getNumberOfEntrys()-1);
+	}
+	
+	/**
+	 * Methode zum Auffinden des naechst kleineren Schluessels im rechten Teilbaum
+	 * @param node
+	 * @return
+	 */
+	private NodeEntry getSmallestNextEntry(BNode node) {
+		if(node.getNumberOfChildNodes() > 0)
+			return getSmallestNextEntry(node.getEntrys().get(0).getLowerChild());
+		else
+			return node.getEntrys().get(0);
 	}
 
 	public void showTree() {
 		System.out.println("Ausgabe des Baums:");
-		// showNode(root, 0);
-		// Richtige Baumstruktur
-		/*
-		 * List<int[]> rows = new LinkedList<int[]>(); int maxWidth = (int)
-		 * (Math.pow(ordnung, getMaxHeight()) - Math.pow(ordnung,
-		 * getMaxHeight()-1)); System.out.println("Debug: " + "Entrys: " +
-		 * numberOfTreeEntrys + " Height: " + getMaxHeight() + " Width: " +
-		 * maxWidth); for(int i = 0; i < getMaxHeight(); i++) { rows.add(new
-		 * int[maxWidth]); } showNode2(root, rows, 0, maxWidth/2); StringBuilder
-		 * sb = new StringBuilder(); for(int i = 0; i < getMaxHeight(); i++) {
-		 * for(int j = 0; j < maxWidth; j++) { if(rows.get(i)[j] != 0) {
-		 * sb.append(String.format("%2d ", rows.get(i)[j])); } else {
-		 * sb.append("   "); } } sb.append("\n"); } System.out.print(sb);
-		 * for(int i = 0; i < maxWidth; i++) System.out.print(" 0 ");
-		 * System.out.print("\n");
-		 * System.out.println("#########################");
-		 */
-		showNode3(root);
-	}
-
-	private void showNode3(BNode node) {
+		
 		int maxHeight = getMaxHeight();
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < getWidth(root) + 24; i++) {
@@ -99,7 +242,7 @@ public class BTree {
 		sb = new StringBuilder();
 		for (int i = 1; i <= maxHeight; ++i) {
 			sb.append(String.format("# Tiefe %2d |", i));
-			printLine(sb, node, i);
+			printLine(sb, root, i);
 			sb.append(String.format("| Tiefe %2d #", i));
 			sb.append("\n");
 		}
@@ -148,34 +291,6 @@ public class BTree {
 				rightWidth += getWidth(node.getEntrys().get(i).getHigherChild());
 		}
 		return leftWidth + (4 * node.getNumberOfEntrys()) + rightWidth;
-	}
-
-	private void showNode2(BNode node, List<int[]> rows, int depth, int pos) {
-		if (node != null) {
-			for (int i = 0; i < node.getNumberOfEntrys(); i++) {
-				showNode2(node.getEntrys().get(i).getLowerChild(), rows, depth + 1, pos - 1);
-				rows.get(depth)[pos - 1 + i] = node.getEntrys().get(i).getKey();
-				if (node.getEntrys().get(i).hasHigherChild())
-					showNode2(node.getEntrys().get(i).getHigherChild(), rows, depth + 1, pos + 1);
-			}
-		}
-	}
-
-	private void showNode(BNode node, int depth) {
-		if (node != null) {
-			for (int i = 0; i < node.getNumberOfEntrys(); i++) {
-				showNode(node.getEntrys().get(i).getLowerChild(), depth + 1);
-				StringBuilder sb = new StringBuilder();
-				for (int j = 0; j < depth; j++) {
-					sb.append('\t');
-				}
-				sb.append(node.getEntrys().get(i).getKey());
-				System.out.println(sb.toString());
-				if (node.getEntrys().get(i).hasHigherChild()) {
-					showNode(node.getEntrys().get(i).getHigherChild(), depth + 1);
-				}
-			}
-		}
 	}
 
 	public void showStat() {

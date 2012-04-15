@@ -50,7 +50,6 @@ public class BTreeStarter {
 					break;
 				case 7:
 					deleteKey(tree);
-					tree.showTree();
 					break;
 				case 9:
 					tree.showStat();
@@ -70,7 +69,8 @@ public class BTreeStarter {
 	public static void fillWithRandomData(BTree tree) {
 		int numberOfValues = ConsoleMenu.readInt("Anzahl der Schlüssel [20]: ", 20);
 		int minValue = numberOfValues;
-		int maxValue = ConsoleMenu.readInt("Maximaler Wert [" + minValue + "]: ", minValue, minValue);
+		int defaultValue = minValue * 2;
+		int maxValue = ConsoleMenu.readInt("Maximaler Wert [" + defaultValue + "]: ", defaultValue, minValue);
 		int seed = ConsoleMenu.readInt("Seed [4711]: ", 4711);
 		
 		Random rand = new Random((long) seed);
@@ -80,7 +80,7 @@ public class BTreeStarter {
 		for(int i = 0; i < numberOfValues; i++) {
 			successfulInsert = false;
 			do {
-				randNumber = rand.nextInt(maxValue);
+				randNumber = rand.nextInt(maxValue) + 1;
 				successfulInsert = tree.insertEntry(new NodeEntry(randNumber));
 				failedInserts++;
 			} while(!successfulInsert && failedInserts < 100);
@@ -104,7 +104,7 @@ public class BTreeStarter {
 	}
 	
 	public static void searchKey(BTree tree) {
-		NodeEntry searchResult = tree.searchKeyR(ConsoleMenu.readInt("Zu suchender Schluessel: "));
+		NodeEntry searchResult = tree.searchKey(ConsoleMenu.readInt("Zu suchender Schluessel: "));
 		if(searchResult != null) {
 			System.out.printf("Schluessel mit dem Key %d gefunden\n und er enhaelt folgende Daten:\n %s", searchResult.getKey(), searchResult.getData());
 		} else {
@@ -114,8 +114,12 @@ public class BTreeStarter {
 	
 	private static void deleteKey(BTree tree) {
 		int keyToDelete = ConsoleMenu.readInt("Zu loeschender Schluessel: ", -1, 0);
-		if(tree.removeEntry(keyToDelete)) {
+		System.out.println("Baum vorher");
+		tree.showTree();
+		if(tree.removeEntry(keyToDelete) != null) {
 			System.out.printf("%40s%n", "Schluessel erfolgreich geloescht");
+			System.out.println("Baum nachher");
+			tree.showTree();
 		} else {
 			System.out.printf("%40s%n", "Schluessel nicht geloescht");
 		}
