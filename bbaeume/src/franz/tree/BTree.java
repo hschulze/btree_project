@@ -175,7 +175,7 @@ public class BTree {
 						
 						if(previousGreatestEntry.getNode().getNumberOfEntrys() == minEntrys && 
 								nextSmallestEntry.getNode().getNumberOfEntrys() == minEntrys) {
-							verschmelzen der teilbaeume
+							vershmelzen der teilbaeume
 						} else if(previousGreatestEntry.getNode().getNumberOfEntrys() > nextSmallestEntry.getNode().getNumberOfEntrys()) {
 							returnValue = node.getEntrys().set(i, removeEntry(previousGreatestEntry.getKey()));
 						} else {
