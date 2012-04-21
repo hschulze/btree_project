@@ -29,8 +29,8 @@ public class BTree {
 			return null;
 		for(int i = 0; i < node.getNumberOfEntrys(); i++) {
 			if(key == node.getEntrys().get(i).getKey()) return node.getEntrys().get(i); 
-			if(key < node.getEntrys().get(i).getKey()) return searchKey(node.getEntrys().get(i).getLowerChild(), key);
-			if((i+1) == node.getNumberOfEntrys()) return searchKey(node.getEntrys().get(i).getHigherChild(), key);
+			if(key < node.getEntrys().get(i).getKey()) return searchKey(node.getChilds().get(i), key);
+			if((i+1) == node.getNumberOfEntrys()) return searchKey(node.getChilds().get(i+1), key);
 		}
 		return null;
 	}
@@ -83,7 +83,7 @@ public class BTree {
 			for (int i = 0; i < node.getNumberOfEntrys(); i++) {
 				if(entry.getKey() < node.getEntrys().get(i).getKey()) {
 					// Entry ist kleiner als der Schluessel an Position i
-					overflowEntry = insertEntry(node.getEntrys().get(i).getLowerChild(), entry);
+					overflowEntry = insertEntry(node.getChilds().get(i), entry);
 					
 					if(overflowEntry != null) {
 						// das Einfuegen in den Kindknoten hat einen Eintrag zurueckgegeben, da der Kindknoten voll war
