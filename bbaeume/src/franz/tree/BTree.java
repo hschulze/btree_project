@@ -2,6 +2,8 @@ package franz.tree;
 
 import java.util.List;
 
+import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.Key;
+
 public class BTree {
 
 	private int ordnung; 	// Knoten hat
@@ -10,10 +12,12 @@ public class BTree {
 							// maximal ordnung-1 schlüssel
 							// mit k söhne speichert k-1 schlüssel
 	private int numberOfTreeEntrys = 0;
+	private int minEntrys;
 	private BNode root = null;
 
 	public BTree(int ordnung) {
 		this.ordnung = ordnung;
+		this.minEntrys = (int) Math.ceil(ordnung/2) - 1;
 	}
 
 	public NodeEntry searchKey(int key) {
@@ -147,59 +151,59 @@ public class BTree {
 	 * Funktion geht davon aus, dass node oder seine Unterbaeume den Schluessel enthalten
 	 * @param node
 	 * @param key
-	 * @return
+	 * @return Entfernter Schluessel aus dem Knoten/Blatt
 	 */
 	private NodeEntry removeKey(BNode node, int key) {
 		NodeEntry returnValue = null;
-		if(node.containsKey(key) > 0) {							// Knoten enthaelt Schluessel
+		int keyPosition = node.containsKey(key); 
+		System.out.println("keyPosition: " + keyPosition);
+		if(keyPosition >= 0) {							// Knoten enthaelt Schluessel
 			
-			if(node.getNumberOfChildNodes() > 0) {				// Knoten mit Schluessel ist ein Blatt
-				for(int i = 0; i < node.getNumberOfEntrys(); i++) {
-					if(node.getEntrys().get(i).getKey() == key) {
-						returnValue = node.getEntrys().remove(i);
-						break;
-					}
-				}
+			if(node.getNumberOfChildNodes() == 0) {				// Knoten mit Schluessel ist ein Blatt
+					returnValue = node.getEntrys().remove(keyPosition);
 			} else {											// Knoten mit Schluessel ist KEIN Blatt
-				for(int i = 0; i < node.getNumberOfEntrys(); i++) {
-					if(node.getEntrys().get(i).getKey() == key) {
-						
-						NodeEntry previousGreatestEntry = getGreatestPreviousEntry(node.getEntrys().get(i).getLowerChild());
-						NodeEntry nextSmallestEntry = null;
-						if(node.getEntrys().get(i).hasHigherChild()) {
-							nextSmallestEntry = getSmallestNextEntry(node.getEntrys().get(i).getHigherChild());
-						} else {
-							nextSmallestEntry = getSmallestNextEntry(node.getEntrys().get(i + 1).getLowerChild());
-						}
-						int minEntrys = (int) Math.ceil(ordnung/2) - 1;
-						
-						if(previousGreatestEntry.getNode().getNumberOfEntrys() == minEntrys && 
-								nextSmallestEntry.getNode().getNumberOfEntrys() == minEntrys) {
-							vershmelzen der teilbaeume
-						} else if(previousGreatestEntry.getNode().getNumberOfEntrys() > nextSmallestEntry.getNode().getNumberOfEntrys()) {
-							returnValue = node.getEntrys().set(i, removeEntry(previousGreatestEntry.getKey()));
-						} else {
-							returnValue = node.getEntrys().set(i, removeEntry(nextSmallestEntry.getKey()));
-						}
-						break;
-					}
+				NodeEntry previousGreatestEntry = getGreatestPreviousEntry(node.getEntrys().get(keyPosition).getLowerChild());
+				NodeEntry nextSmallestEntry = null;
+				if(node.getEntrys().get(keyPosition).hasHigherChild()) {
+					nextSmallestEntry = getSmallestNextEntry(node.getEntrys().get(keyPosition).getHigherChild());
+				} else {
+					nextSmallestEntry = getSmallestNextEntry(node.getEntrys().get(keyPosition + 1).getLowerChild());
+				}
+				
+				if(previousGreatestEntry.getNode().getNumberOfEntrys() == minEntrys && 
+						nextSmallestEntry.getNode().getNumberOfEntrys() == minEntrys) {
+					// Verschmelzen der Teilbaeume
+					
+				} else if(previousGreatestEntry.getNode().getNumberOfEntrys() > nextSmallestEntry.getNode().getNumberOfEntrys()) {
+					returnValue = node.getEntrys().set(keyPosition, removeEntry(previousGreatestEntry.getKey()));
+				} else {
+					returnValue = node.getEntrys().set(keyPosition, removeEntry(nextSmallestEntry.getKey()));
 				}
 			}
 			
 		} else {												// Knoten enthaelt Schluessel NICHT
 			// Naechsten Knoten herausfinden
 			BNode nextNode = null;
+			int nextNodePosition;
 			for(int i = 0; i < node.getNumberOfEntrys(); i++) {
 				if(key < node.getEntrys().get(i).getKey()) {
 					nextNode = node.getEntrys().get(i).getLowerChild();
+					nextNodePosition = i;
 					break;
 				} else if(node.getEntrys().get(i).hasHigherChild()) {
 					nextNode = node.getEntrys().get(i).getHigherChild();
+					nextNodePosition = i + 1;
 					break;
 				}
 			}
+			// naechster Knoten wurde ermittelt
+			returnValue = removeKey(nextNode, key);
 			
-			
+			if(nextNode.getNumberOfEntrys() < minEntrys) {
+				if(nextNode.isNode()) {
+					
+				}
+			}
 		}
 		
 		return returnValue;

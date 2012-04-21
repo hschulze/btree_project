@@ -20,6 +20,15 @@ public class BNode {
 		return size;
 	}
 	
+	public boolean isLeaf() {
+		if(getNumberOfChildNodes() == 0) return true;
+		return false;
+	}
+	
+	public boolean isNode() {
+		return !isLeaf();
+	}
+	
 	public List<NodeEntry> getEntrys() {
 		return entrys;
 	}
