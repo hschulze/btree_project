@@ -8,19 +8,21 @@ public class BNode {
 	
 	private List<NodeEntry> entrys;
 	
-	private List<BNode> childs;
-	
 	public BNode() {
 		entrys = new LinkedList<NodeEntry>();
-		childs = new LinkedList<BNode>();
 	}
 	
-	public List<BNode> getChilds() {
-		return childs;
+	public BNode getChildNode(int i) {
+		if(i > entrys.size()) return entrys.get(i-1).getHigherChild();
+		return entrys.get(i).getLowerChild();
 	}
 	
 	public int getNumberOfChildNodes() {
-		return childs.size();
+		int size = 0;
+		for(NodeEntry entry : entrys) {
+			size += entry.getNumberOfChilds();
+		}
+		return size;
 	}
 	
 	public boolean isLeaf() {
