@@ -1,0 +1,6 @@
+bei search und insert nicht mit NodeEntry sondern mit int key arbeiten
+evtl noch den Baum neben dem Menü zeichnen
+
+evtl. noch das Konstrukt mit lower und higherchild verwerfen und eine zweite liste einbauen
+
+
