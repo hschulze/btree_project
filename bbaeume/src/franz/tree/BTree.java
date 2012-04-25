@@ -1,9 +1,5 @@
 package franz.tree;
 
-import java.util.List;
-
-import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.Key;
-
 public class BTree {
 
 	private int ordnung; 	// Knoten hat
@@ -29,12 +25,13 @@ public class BTree {
 	private NodeEntry searchKey(BNode node, int key) {
 		if(node == null) 
 			return null;
-		for(int i = 0; i < node.getNumberOfEntrys(); i++) {
-			if(key == node.getKey(i)) return node.getEntry(i); 
-			if(key < node.getKey(i)) return searchKey(node.getChild(i), key);
-			if((i+1) == node.getNumberOfEntrys()) return searchKey(node.getChild(i+1), key);
+		
+		int entryPosition = node.containsKey(key);
+		if(entryPosition < 0) {
+			return searchKey(node.getChild(node.getNextChildPositionForKey(key)), key);
+		} else {
+			return node.getEntry(entryPosition); 
 		}
-		return null;
 	}
 
 	/**
@@ -78,18 +75,8 @@ public class BTree {
 			// Fertig mit Eingefuegen im Blatt
 		} else {
 			// BNode ist ein Knoten
-			int childPositionToInsert = -1;
+			int childPositionToInsert = node.getNextChildPositionForKey(entry.getKey());
 			
-			for (int i = 0; i < node.getNumberOfEntrys(); i++) {
-				if(entry.getKey() < node.getKey(i)) {
-					// Entry ist kleiner als der Schluessel an Position i
-					childPositionToInsert = i;					
-					break;
-				} else if(i == node.getNumberOfEntrys() - 1) {
-					// Entry ist groeßer als alle Schluessel in dem Knoten
-					childPositionToInsert = i+1;
-				}
-			}
 			// Einfuegen in UnterKnoten
 			insertEntry(node.getChild(childPositionToInsert), entry);
 		
@@ -136,50 +123,54 @@ public class BTree {
 	 * @return Entfernter Schluessel aus dem Knoten/Blatt
 	 */
 	private NodeEntry removeKey(BNode node, int key) {
+		// Scriptum(KB-K12)
 		NodeEntry returnValue = null;
-		//System.out.println("NODE: " + node.getEntry(0).getKey());
+
 		int keyEntryPosition = node.containsKey(key);
-		//System.out.println("keyEntryPosition: " + keyEntryPosition);
+
 		if(keyEntryPosition < 0) {										// Knoten enthaelt Key NICHT
-			int nextChildPosition = -1;
-			for(int i = 0; i < node.getNumberOfEntrys(); i++) {
-				if(key < node.getKey(i)) {
-					nextChildPosition = i;
-					break;
-				} else if(i+1 == node.getNumberOfEntrys()) {
-					nextChildPosition = i+1;
-				}
-				//System.out.println(i+":"+node.getNumberOfEntrys()+":"+nextChildPosition+":"+node.getEntry(i).getKey()+":"+key);
-			}
-			//System.out.println(nextChildPosition);
-			if(node.getChild(nextChildPosition).containsKey(key) >= 0 && node.getChild(nextChildPosition).getNumberOfEntrys() <= minEntrys) {		// naechster Knoten ist zu leer
-				if(nextChildPosition > 0) {
-					mergeNodes(node.getChild(nextChildPosition-1), node.getChild(nextChildPosition), node, nextChildPosition);	// merge mit linkem Teilbaum
+			
+			int nextChildPosition = node.getNextChildPositionForKey(key);
+			returnValue = removeKey(node.getChild(nextChildPosition), key);
+			
+			// Fall 1: nextChild besitzt nach dem Loeschen noch m Schluessel => fertig (167)
+			
+			if(node.getChild(nextChildPosition).getNumberOfEntrys() == minEntrys-1) {
+				// nextChild besitzt nach dem Loeschen nur noch m-1 Schluessel
+				int numberOfLeftSilbingNodeEntrys = node.getChild(nextChildPosition-1) != null ? node.getChild(nextChildPosition-1).getNumberOfEntrys() : 0;
+				int numberOfRightSilbingNodeEntrys = node.getChild(nextChildPosition+1) != null ? node.getChild(nextChildPosition+1).getNumberOfEntrys() : 0;
+				
+				if(numberOfLeftSilbingNodeEntrys > minEntrys || numberOfRightSilbingNodeEntrys > minEntrys) {
+					// Fall 2: nextChild besitzt nach dem Loeschen nur m-1 Schluessel && ein Geschwisterknoten besitzt mind. m+1 Schluessel => rotate (168 f)
+					if(numberOfLeftSilbingNodeEntrys < numberOfRightSilbingNodeEntrys) {
+						// Rotation mit dem rechten Geschwisterknoten
+						rotateRight(node, nextChildPosition);
+					} else {
+						// Rotation mit dem linken Geschwisterknoten
+						rotateLeft(node, nextChildPosition);
+					}
 				} else {
-					mergeNodes(node.getChild(nextChildPosition), node.getChild(nextChildPosition+1), node, nextChildPosition);	// merge mit rechtem Teilbaum
-				}
-			}
-			// !!! Aufpassen, dass der gesuchte Key nicht nach oben kommt oder jetzt im anderen Knoten ist !!!
-			int keyPosition = node.containsKey(key);
-			if(keyPosition >= 0) {
-				if( getGreatestPreviousNode(node.getChild(keyPosition)).getNumberOfEntrys() > getSmallestNextNode(node.getChild(keyPosition+1)).getNumberOfEntrys() ) {
-					returnValue = node.setEntry(keyPosition, removeKey(node.getChild(keyPosition), getGreatestPreviousNode(node.getChild(keyPosition)).getKey(getGreatestPreviousNode(node.getChild(keyPosition)).getNumberOfEntrys()-1))); 		// Eintrag wird durch naechst kleineren ersetzt
-				} else {
-					returnValue = node.setEntry(keyPosition, removeKey(node.getChild(keyPosition+1), getSmallestNextNode(node.getChild(keyPosition+1)).getKey(0))); 		// Eintrag wird durch naechst kleineren ersetzt
+					// Fall 3: nextChild besitzt nach dem Loeschen nur m-1 Schluessel && die Geschwisterknoten besitzen ebenfalls m Schluessel => merge (170 f)  !!! Beachte, wenn Wurzel !!!
+					if(node != root) {
+						System.out.println("not root");
+						merge(node, nextChildPosition);
+					}
+						
 				}
 				
-			} else if(node.getChild(nextChildPosition) == null) {
-				returnValue = removeKey(node.getChild(nextChildPosition-1), key);
-			} else {
-				returnValue = removeKey(node.getChild(nextChildPosition), key);
 			}
 		} else {														// Knoten enthaelt Key
 			
 			if(node.getNumberOfChilds() == 0) {							// Knoten ist ein Blatt
-				returnValue = node.removeEntry(node.containsKey(key));
-			} else {													// Knoten ist kein Blatt
-				// Eintrag wird durch nachfolgenden Knoten ersetzt
-				// das passiert aber schon oben!!!
+				return node.removeEntry(node.containsKey(key));
+			} else {													// Knoten ist ein Knoten
+				returnValue = node.setEntry(keyEntryPosition, removeKey(node.getChild(keyEntryPosition+1), getSmallestNextNode(node.getChild(keyEntryPosition+1)).getKey(0)));
+				if(node.getChild(keyEntryPosition+1).getNumberOfEntrys() == 0) {
+					System.out.println("JO");
+					rotateLeft(node, keyEntryPosition+1);
+				} else if(node.getChild(keyEntryPosition).getNumberOfEntrys() == 0) {
+					System.out.println("NO");
+				}
 			}
 			
 		}
@@ -187,6 +178,55 @@ public class BTree {
 		return returnValue;
 	}
 	
+	private void rotateRight(BNode node, int nodeKeyPosition) {
+		BNode childNode = node.getChild(nodeKeyPosition);
+		BNode rightNode = node.getChild(nodeKeyPosition+1);
+		
+		childNode.addEntry(node.removeEntry(nodeKeyPosition));
+		childNode.addChild(rightNode.removeChild(0));
+		
+		node.addEntry(nodeKeyPosition, rightNode.removeEntry(0));
+	}
+	
+	private void rotateLeft(BNode node, int nodeKeyPosition) {
+		BNode childNode = node.getChild(nodeKeyPosition);
+		BNode leftNode = node.getChild(nodeKeyPosition-1);
+		
+		childNode.addEntry(0, node.removeEntry(nodeKeyPosition-1));
+		childNode.addChild(0, leftNode.removeChild(leftNode.getNumberOfChilds()-1));
+		
+		node.addEntry(nodeKeyPosition-1, leftNode.removeEntry(leftNode.getNumberOfEntrys()-1));
+	}
+	
+	private void merge(BNode node, int nodeKeyPosition) {
+		BNode leftNode = null;
+		BNode rightNode = null;
+		if(nodeKeyPosition == node.getNumberOfChilds()-1) {
+			// nextChild ist das rechteste Kind des Elternknotens
+			leftNode = node.getChild(node.getNumberOfChilds()-2);
+			rightNode = node.getChild(node.getNumberOfChilds()-1);
+		} else {
+			leftNode = node.getChild(nodeKeyPosition);
+			rightNode = node.getChild(nodeKeyPosition+1);
+		}
+		
+		leftNode.addEntry(node.removeEntry(nodeKeyPosition));
+		
+		while(rightNode.getNumberOfChilds() > 0) {
+			leftNode.addChild(rightNode.removeChild(0));
+			leftNode.addEntry(rightNode.removeEntry(0));
+		}
+		
+		node.removeChild(nodeKeyPosition+1);
+	}
+	
+	/**
+	 * @deprecated
+	 * @param leftTree
+	 * @param rightTree
+	 * @param node
+	 * @param childPositionToMerge
+	 */
 	private void mergeNodes(BNode leftTree, BNode rightTree, BNode node, int childPositionToMerge) {
 		if(leftTree.getNumberOfEntrys() + rightTree.getNumberOfEntrys() >= ordnung) {			// Rotation
 			

@@ -17,22 +17,28 @@ public class BNode {
 	}
 	
 	public void addEntry(NodeEntry element) {
-		entrys.add(element);
+		if(element != null)
+			entrys.add(element);
 	}
 	
 	public void addEntry(int index, NodeEntry element) {
-		entrys.add(index, element);
+		if(element != null)
+			entrys.add(index, element);
 	}
 	
 	public NodeEntry setEntry(int index, NodeEntry element) {
-		return setEntry(index, element);
+		return entrys.set(index, element);
 	}
 	
 	public NodeEntry removeEntry(int index) {
 		if(index > getNumberOfEntrys() - 1) return null;
 		return entrys.remove(index);
 	}
-	
+	/**
+	 * 
+	 * @param index
+	 * @return Key-Value an der Stelle des Index <i>index</i>
+	 */
 	public int getKey(int index) {
 		if(index > getNumberOfEntrys()-1 || index == -1) return -1;
 		return entrys.get(index).getKey();
@@ -52,11 +58,13 @@ public class BNode {
 	}
 	
 	public void addChild(BNode element) {
-		childs.add(element);
+		if(element != null)
+			childs.add(element);
 	}
 	
 	public void addChild(int index, BNode element) {
-		childs.add(index, element);
+		if(element != null)
+			childs.add(index, element);
 	}
 	
 	public BNode removeChild(int index) {
@@ -67,6 +75,23 @@ public class BNode {
 	public BNode getChild(int index) {
 		if(index > getNumberOfChilds() - 1 || index == -1) return null;
 		return childs.get(index);
+	}
+	
+	public int getNextChildPositionForKey(int key) {
+		
+		if(containsKey(key) >= 0) 
+			return -1;
+		
+		int nextChildPosition = -1;
+		for(int i = 0; i < getNumberOfEntrys(); i++) {
+			if(key < getKey(i)) {
+				nextChildPosition = i;
+				break;
+			} else if(i == getNumberOfEntrys() - 1) {
+				nextChildPosition = i+1;
+			}
+		}
+		return nextChildPosition;
 	}
 	
 	public int getNumberOfChilds() {
