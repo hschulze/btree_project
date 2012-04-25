@@ -13,11 +13,13 @@ public class BTree {
 							// mit k söhne speichert k-1 schlüssel
 	private int numberOfTreeEntrys = 0;
 	private int minEntrys;
+	private int middle;
 	private BNode root = null;
 
 	public BTree(int ordnung) {
 		this.ordnung = ordnung;
-		this.minEntrys = (int) Math.ceil(ordnung/2) - 1;
+		this.minEntrys = (int) Math.ceil(ordnung/2);	// -1
+		this.middle = ordnung / 2;
 	}
 
 	public NodeEntry searchKey(int key) {
@@ -28,8 +30,8 @@ public class BTree {
 		if(node == null) 
 			return null;
 		for(int i = 0; i < node.getNumberOfEntrys(); i++) {
-			if(key == node.getEntry(i).getKey()) return node.getEntry(i); 
-			if(key < node.getEntry(i).getKey()) return searchKey(node.getChild(i), key);
+			if(key == node.getKey(i)) return node.getEntry(i); 
+			if(key < node.getKey(i)) return searchKey(node.getChild(i), key);
 			if((i+1) == node.getNumberOfEntrys()) return searchKey(node.getChild(i+1), key);
 		}
 		return null;
@@ -64,7 +66,7 @@ public class BTree {
 			// BNode ist ein Blatt		
 			for(int i = 0; i < ordnung; i++) {
 				if(node.getNumberOfEntrys() > i) {												// wenn der Eintrag i existiert
-					if(entry.getKey() < node.getEntry(i).getKey()) {
+					if(entry.getKey() < node.getKey(i)) {
 						node.addEntry(i, entry);
 						break;
 					}
@@ -79,7 +81,7 @@ public class BTree {
 			int childPositionToInsert = -1;
 			
 			for (int i = 0; i < node.getNumberOfEntrys(); i++) {
-				if(entry.getKey() < node.getEntry(i).getKey()) {
+				if(entry.getKey() < node.getKey(i)) {
 					// Entry ist kleiner als der Schluessel an Position i
 					childPositionToInsert = i;					
 					break;
@@ -99,9 +101,7 @@ public class BTree {
 		}	
 	}
 
-	private void splitTree(BNode node, int childPositionToSplit, BNode subNodeToSplit) {
-		int middle = subNodeToSplit.getNumberOfEntrys() / 2;
-		
+	private void splitTree(BNode node, int childPositionToSplit, BNode subNodeToSplit) {		
 		node.addEntry(childPositionToSplit, subNodeToSplit.removeEntry(middle));
 		
 		BNode rightSubTree = new BNode();
@@ -137,61 +137,77 @@ public class BTree {
 	 */
 	private NodeEntry removeKey(BNode node, int key) {
 		NodeEntry returnValue = null;
-		int keyPosition = node.containsKey(key); 
-		System.out.println("keyPosition: " + keyPosition);
-		if(keyPosition >= 0) {							// Knoten enthaelt Schluessel
-			
-			if(node.getNumberOfChilds() == 0) {				// Knoten mit Schluessel ist ein Blatt
-					returnValue = node.removeEntry(keyPosition);
-			} else {											// Knoten mit Schluessel ist KEIN Blatt
-				NodeEntry nextSmallestEntry = null;
-				if(node.getEntry(keyPosition).hasHigherChild()) {
-					nextSmallestEntry = getSmallestNextEntry(node.getEntry(keyPosition).getHigherChild());
-				} else {
-					nextSmallestEntry = getSmallestNextEntry(node.getEntry(keyPosition + 1).getLowerChild());
-				}
-				returnValue = node.setEntry(keyPosition, removeEntry(nextSmallestEntry.getKey()));
-			}
-			
-		} else {												// Knoten enthaelt Schluessel NICHT
-			// Naechsten Knoten herausfinden
-			BNode nextNode = null;
-			int nextNodePosition = 0;
+		//System.out.println("NODE: " + node.getEntry(0).getKey());
+		int keyEntryPosition = node.containsKey(key);
+		//System.out.println("keyEntryPosition: " + keyEntryPosition);
+		if(keyEntryPosition < 0) {										// Knoten enthaelt Key NICHT
+			int nextChildPosition = -1;
 			for(int i = 0; i < node.getNumberOfEntrys(); i++) {
-				if(key < node.getEntry(i).getKey()) {
-					nextNode = node.getChild(i);
-					nextNodePosition = i;
+				if(key < node.getKey(i)) {
+					nextChildPosition = i;
 					break;
-				} else if(node.getChild(i+1) != null) {
-					nextNode = node.getChild(i+1);
-					nextNodePosition = i + 1;
-					break;
+				} else if(i+1 == node.getNumberOfEntrys()) {
+					nextChildPosition = i+1;
+				}
+				//System.out.println(i+":"+node.getNumberOfEntrys()+":"+nextChildPosition+":"+node.getEntry(i).getKey()+":"+key);
+			}
+			//System.out.println(nextChildPosition);
+			if(node.getChild(nextChildPosition).containsKey(key) >= 0 && node.getChild(nextChildPosition).getNumberOfEntrys() <= minEntrys) {		// naechster Knoten ist zu leer
+				if(nextChildPosition > 0) {
+					mergeNodes(node.getChild(nextChildPosition-1), node.getChild(nextChildPosition), node, nextChildPosition);	// merge mit linkem Teilbaum
+				} else {
+					mergeNodes(node.getChild(nextChildPosition), node.getChild(nextChildPosition+1), node, nextChildPosition);	// merge mit rechtem Teilbaum
 				}
 			}
-			// naechster Knoten wurde ermittelt
-			returnValue = removeKey(nextNode, key);
+			// !!! Aufpassen, dass der gesuchte Key nicht nach oben kommt oder jetzt im anderen Knoten ist !!!
+			int keyPosition = node.containsKey(key);
+			if(keyPosition >= 0) {
+				if( getGreatestPreviousNode(node.getChild(keyPosition)).getNumberOfEntrys() > getSmallestNextNode(node.getChild(keyPosition+1)).getNumberOfEntrys() ) {
+					returnValue = node.setEntry(keyPosition, removeKey(node.getChild(keyPosition), getGreatestPreviousNode(node.getChild(keyPosition)).getKey(getGreatestPreviousNode(node.getChild(keyPosition)).getNumberOfEntrys()-1))); 		// Eintrag wird durch naechst kleineren ersetzt
+				} else {
+					returnValue = node.setEntry(keyPosition, removeKey(node.getChild(keyPosition+1), getSmallestNextNode(node.getChild(keyPosition+1)).getKey(0))); 		// Eintrag wird durch naechst kleineren ersetzt
+				}
+				
+			} else if(node.getChild(nextChildPosition) == null) {
+				returnValue = removeKey(node.getChild(nextChildPosition-1), key);
+			} else {
+				returnValue = removeKey(node.getChild(nextChildPosition), key);
+			}
+		} else {														// Knoten enthaelt Key
 			
-			if(nextNode.getNumberOfEntrys() < minEntrys) {
-				if(nextNodePosition > 0 &&
-						nextNode.getNumberOfEntrys() + node.getChild(nextNodePosition-1).getNumberOfEntrys() >= minEntrys * 2) {
-					node.setEntry(nextNodePosition, mergeNodes(node.getChild(nextNodePosition-1), 
-																		node.getChild(nextNodePosition), 
-																		node.getEntry(nextNodePosition)));
-					
-				} else if(nextNodePosition < node.getNumberOfChilds() &&
-						nextNode.getNumberOfEntrys() + node.getChild(nextNodePosition+1+1).getNumberOfChilds() >= minEntrys * 2) {
-					node.setEntry(nextNodePosition, mergeNodes(node.getChild(nextNodePosition), 
-																		node.getChild(nextNodePosition+1), 
-																		node.getEntry(nextNodePosition)));
-				}
+			if(node.getNumberOfChilds() == 0) {							// Knoten ist ein Blatt
+				returnValue = node.removeEntry(node.containsKey(key));
+			} else {													// Knoten ist kein Blatt
+				// Eintrag wird durch nachfolgenden Knoten ersetzt
+				// das passiert aber schon oben!!!
 			}
+			
 		}
 		
 		return returnValue;
 	}
 	
-	private NodeEntry mergeNodes(BNode leftTree, BNode rightTree, NodeEntry node) {
-		return null;
+	private void mergeNodes(BNode leftTree, BNode rightTree, BNode node, int childPositionToMerge) {
+		if(leftTree.getNumberOfEntrys() + rightTree.getNumberOfEntrys() >= ordnung) {			// Rotation
+			
+			rightTree.addEntry(0, node.setEntry(childPositionToMerge, leftTree.removeEntry(middle)));
+			rightTree.addChild(0, leftTree.removeChild(leftTree.getNumberOfChilds()+1));
+			
+			while(middle < leftTree.getNumberOfEntrys()) {
+				rightTree.addEntry(0, leftTree.removeEntry(leftTree.getNumberOfEntrys()-1));
+				rightTree.addChild(0, leftTree.removeChild(leftTree.getNumberOfChilds()+1));
+			}
+		} else {																				// Zusammenlegen
+			leftTree.addEntry(node.removeEntry(childPositionToMerge));
+			leftTree.addChild(rightTree.removeChild(0));
+			
+			while(rightTree.getNumberOfEntrys() > 0) {
+				leftTree.addEntry(rightTree.removeEntry(0));
+				leftTree.addChild(rightTree.removeChild(0));
+			}
+			
+			node.removeChild(childPositionToMerge);
+		}
 	}
 	
 	/**
@@ -199,11 +215,11 @@ public class BTree {
 	 * @param node
 	 * @return
 	 */
-	private NodeEntry getGreatestPreviousEntry(BNode node) {
+	private BNode getGreatestPreviousNode(BNode node) {
 		if(node.getNumberOfChilds() > 0)
-			return getGreatestPreviousEntry(node.getChild(node.getNumberOfEntrys()-1+1));
+			return getGreatestPreviousNode(node.getChild(node.getNumberOfEntrys()-1+1));
 		else
-			return node.getEntry(node.getNumberOfEntrys()-1);
+			return node;
 	}
 	
 	/**
@@ -211,11 +227,11 @@ public class BTree {
 	 * @param node
 	 * @return
 	 */
-	private NodeEntry getSmallestNextEntry(BNode node) {
+	private BNode getSmallestNextNode(BNode node) {
 		if(node.getNumberOfChilds() > 0)
-			return getSmallestNextEntry(node.getChild(0));
+			return getSmallestNextNode(node.getChild(0));
 		else
-			return node.getEntry(0);
+			return node;
 	}
 
 	public void showTree() {
@@ -246,13 +262,13 @@ public class BTree {
 			if (depth == 1) {
 				fillSpaces(sb, getWidth(node.getChild(i)));
 				if (i == 0 && node.getNumberOfEntrys() == 1) { 									// nur ein Eintrag in Knoten
-					sb.append(String.format("(%2s)", node.getEntry(i).getKey()));
+					sb.append(String.format("(%2s)", node.getKey(i)));
 				} else if (i == 0) { 															// ist erster Eintrag in Knoten
-					sb.append(String.format("(%2s ", node.getEntry(i).getKey()));
+					sb.append(String.format("(%2s ", node.getKey(i)));
 				} else if (i != 0 && i + 1 == node.getNumberOfEntrys()) { 						// ist letzer Eintrag in Knoten
-					sb.append(String.format(" %2s)", node.getEntry(i).getKey()));
+					sb.append(String.format(" %2s)", node.getKey(i)));
 				} else {
-					sb.append(String.format(" %2s ", node.getEntry(i).getKey()));
+					sb.append(String.format(" %2s ", node.getKey(i)));
 				}
 				if(i+1 == node.getNumberOfEntrys())
 					fillSpaces(sb, getWidth(node.getChild(i+1)));
@@ -287,8 +303,12 @@ public class BTree {
 
 	public void showStat() {
 		System.out.println("Ausgabe der Statistik:");
+		System.out.println("Ordung:    " + ordnung);
+		System.out.println("MinEntrys: " + minEntrys);
+		System.out.println("MaxEntrys: " + (ordnung-1));
 		System.out.println("MinHeight: " + getMinHeight());
 		System.out.println("MaxHeight: " + getMaxHeight());
+		
 	}
 
 	public int getMinHeight() {

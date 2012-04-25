@@ -29,8 +29,13 @@ public class BNode {
 	}
 	
 	public NodeEntry removeEntry(int index) {
-		if(index > getNumberOfEntrys()-1) return null;
+		if(index > getNumberOfEntrys() - 1) return null;
 		return entrys.remove(index);
+	}
+	
+	public int getKey(int index) {
+		if(index > getNumberOfEntrys()-1 || index == -1) return -1;
+		return entrys.get(index).getKey();
 	}
 	
 	public NodeEntry getEntry(int index) {
@@ -55,12 +60,12 @@ public class BNode {
 	}
 	
 	public BNode removeChild(int index) {
-		if(index > getNumberOfChilds()-1 || index == -1) return null;
+		if(index > getNumberOfChilds() - 1 || index == -1) return null;
 		return childs.remove(index);
 	}
 	
 	public BNode getChild(int index) {
-		if(index > getNumberOfChilds() - 1) return null;
+		if(index > getNumberOfChilds() - 1 || index == -1) return null;
 		return childs.get(index);
 	}
 	
@@ -86,6 +91,9 @@ public class BNode {
 //	}
 	
 	public int getNumberOfEntrys() {
+		for(int i = 0; i < entrys.size(); i++) {
+			if(entrys.get(i) == null) entrys.remove(i);
+		}
 		return entrys.size();
 	}
 	
