@@ -116,10 +116,13 @@ public class BTreeStarter {
 		int keyToDelete = ConsoleMenu.readInt("Zu loeschender Schluessel: ", -1, 0);
 		System.out.println("Baum vorher");
 		tree.showTree();
-		if(tree.removeEntry(keyToDelete) != null) {
+		NodeEntry removedEntry = tree.removeEntry(keyToDelete);
+		if(removedEntry != null) {
 			System.out.printf("%40s%n", "Schluessel erfolgreich geloescht");
 			System.out.println("Baum nachher");
 			tree.showTree();
+			System.out.println("Geloeschter Schluessel:");
+			System.out.println("      key: " + removedEntry.getKey());
 		} else {
 			System.out.printf("%40s%n", "Schluessel nicht geloescht");
 		}

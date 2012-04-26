@@ -40,7 +40,7 @@ public class BNode {
 	 * @return Key-Value an der Stelle des Index <i>index</i>
 	 */
 	public int getKey(int index) {
-		if(index > getNumberOfEntrys()-1 || index == -1) return -1;
+		if(index > getNumberOfEntrys()-1 || index == -1 || entrys.get(index) == null) return -1;
 		return entrys.get(index).getKey();
 	}
 	
@@ -130,7 +130,7 @@ public class BNode {
 	public int containsKey(int key) {
 		int position = -1;
 		for(int i = 0; i < getNumberOfEntrys(); i++) {
-			if(entrys.get(i).getKey() == key) {
+			if(getKey(i) == key) {
 				position = i;
 				break;
 			}

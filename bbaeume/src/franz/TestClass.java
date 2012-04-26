@@ -14,7 +14,11 @@ public class TestClass {
 		node.addEntry(new NodeEntry(3));
 		node.addEntry(1, new NodeEntry(9));
 		
+		BNode test = node;
 		
+		if(test == node)
+			System.out.println("JA");
+			
 		for(int i = 0; i < node.getNumberOfEntrys(); i++) {
 			System.out.println(i + " " + node.getEntry(i).getKey());
 		}

@@ -117,64 +117,64 @@ public class BTree {
 		return result;
 	}
 	
-	private NodeEntry removeKey2(BNode node, int key) {
-		// get information needed
-		BNode delBTNode = searchKey(key).getNode();
-		if (delBTNode == null) {
-			return null;
-		}
-		int keyIndex = delBTNode.containsKey(key);
-		BNode returnNode = delBTNode.getKey(keyIndex);
-
-
-		if (delBTNode.getNumberOfChilds() == 0) {				// is a leaf **********************************
-			if (delBTNode.nKey > order - 1)
-				// we can delete KeyNode directly
-			{
-				delBTNode.extractKeyNode(keyIndex);
-			} else
-				// we need to get more keys so that we can delete it
-			{
-				BNode parentBTNode = delBTNode.parent;
-				int parentIndex = 0;
-				while (parentBTNode.getBTNode(parentIndex) != delBTNode)
-					parentIndex++;
-				if (parentIndex == parentBTNode.nKey) {
-					BNode leftBTNode = parentBTNode.getBTNode(parentIndex - 1);
-					if (leftBTNode.nKey > order - 1) {
-						delBTNode.kArray[keyIndex] = parentBTNode.getKeyNode(parentIndex);
-						parentBTNode.kArray[parentIndex] = leftBTNode.getKeyNode(leftBTNode.nKey - 1);
-						deleteNode(leftBTNode, leftBTNode.getKeyNode(leftBTNode.nKey - 1).getKey());
-					} else {
-						delBTNode.mergeWithBTNode();
-					}
-				} else {
-					BNode rightBTNode = parentBTNode.getBTNode(parentIndex + 1);
-					if (rightBTNode.nKey > order - 1) {
-						delBTNode.kArray[keyIndex] = parentBTNode.getKeyNode(parentIndex);
-						parentBTNode.kArray[parentIndex] = rightBTNode.getKeyNode(0);
-						deleteNode(rightBTNode, rightBTNode.getKeyNode(0).getKey());
-					} else {
-						delBTNode.mergeWithBTNode();
-					}
-				}
-			}
-		} else { // is internal node *********************
-			//try predecesor
-			// get the node to exchange and delete it at leaf position
-			BNode preBTNode = delBTNode.getBTNode(keyIndex);
-			while (preBTNode.getNumberOfChilds() > 0) {
-				preBTNode = preBTNode.getBTNode(preBTNode.nKey);
-			}
-
-			// swap nodes
-			BNode tmpKeyNode = preBTNode.getKeyNode(preBTNode.nKey - 1);
-			preBTNode.kArray[preBTNode.nKey - 1] = delBTNode.kArray[keyIndex];
-			delBTNode.kArray[keyIndex] = tmpKeyNode;
-			deleteNode(preBTNode, preBTNode.getKeyNode(preBTNode.nKey - 1).getKey());
-		}
-		return returnNode;
-	}
+//	private NodeEntry removeKey2(BNode node, int key) {
+//		// get information needed
+//		BNode delBTNode = searchKey(key).getNode();
+//		if (delBTNode == null) {
+//			return null;
+//		}
+//		int keyIndex = delBTNode.containsKey(key);
+//		BNode returnNode = delBTNode.getKey(keyIndex);
+//
+//
+//		if (delBTNode.getNumberOfChilds() == 0) {				// is a leaf **********************************
+//			if (delBTNode.nKey > order - 1)
+//				// we can delete KeyNode directly
+//			{
+//				delBTNode.extractKeyNode(keyIndex);
+//			} else
+//				// we need to get more keys so that we can delete it
+//			{
+//				BNode parentBTNode = delBTNode.parent;
+//				int parentIndex = 0;
+//				while (parentBTNode.getBTNode(parentIndex) != delBTNode)
+//					parentIndex++;
+//				if (parentIndex == parentBTNode.nKey) {
+//					BNode leftBTNode = parentBTNode.getBTNode(parentIndex - 1);
+//					if (leftBTNode.nKey > order - 1) {
+//						delBTNode.kArray[keyIndex] = parentBTNode.getKeyNode(parentIndex);
+//						parentBTNode.kArray[parentIndex] = leftBTNode.getKeyNode(leftBTNode.nKey - 1);
+//						deleteNode(leftBTNode, leftBTNode.getKeyNode(leftBTNode.nKey - 1).getKey());
+//					} else {
+//						delBTNode.mergeWithBTNode();
+//					}
+//				} else {
+//					BNode rightBTNode = parentBTNode.getBTNode(parentIndex + 1);
+//					if (rightBTNode.nKey > order - 1) {
+//						delBTNode.kArray[keyIndex] = parentBTNode.getKeyNode(parentIndex);
+//						parentBTNode.kArray[parentIndex] = rightBTNode.getKeyNode(0);
+//						deleteNode(rightBTNode, rightBTNode.getKeyNode(0).getKey());
+//					} else {
+//						delBTNode.mergeWithBTNode();
+//					}
+//				}
+//			}
+//		} else { // is internal node *********************
+//			//try predecesor
+//			// get the node to exchange and delete it at leaf position
+//			BNode preBTNode = delBTNode.getBTNode(keyIndex);
+//			while (preBTNode.getNumberOfChilds() > 0) {
+//				preBTNode = preBTNode.getBTNode(preBTNode.nKey);
+//			}
+//
+//			// swap nodes
+//			BNode tmpKeyNode = preBTNode.getKeyNode(preBTNode.nKey - 1);
+//			preBTNode.kArray[preBTNode.nKey - 1] = delBTNode.kArray[keyIndex];
+//			delBTNode.kArray[keyIndex] = tmpKeyNode;
+//			deleteNode(preBTNode, preBTNode.getKeyNode(preBTNode.nKey - 1).getKey());
+//		}
+//		return returnNode;
+//	}
 	/**
 	 * Funktion geht davon aus, dass node oder seine Unterbaeume den Schluessel enthalten
 	 * @param node
@@ -191,12 +191,12 @@ public class BTree {
 			
 			int nextChildPosition = node.getNextChildPositionForKey(key);
 			
-			
 			returnValue = removeKey(node.getChild(nextChildPosition), key);
-			
+			showTree();
 			// Fall 1: nextChild besitzt nach dem Loeschen noch m Schluessel => fertig (167)
 			
 			if(node.getChild(nextChildPosition).getNumberOfEntrys() == minEntrys-1) {
+				System.out.println("TEST");
 				// nextChild besitzt nach dem Loeschen nur noch m-1 Schluessel
 				int numberOfLeftSilbingNodeEntrys = node.getChild(nextChildPosition-1) != null ? node.getChild(nextChildPosition-1).getNumberOfEntrys() : 0;
 				int numberOfRightSilbingNodeEntrys = node.getChild(nextChildPosition+1) != null ? node.getChild(nextChildPosition+1).getNumberOfEntrys() : 0;
@@ -218,20 +218,29 @@ public class BTree {
 					}
 						
 				}
-				
 			}
+			
 		} else {														// Knoten enthaelt Key
 			
 			if(node.getNumberOfChilds() == 0) {							// Knoten ist ein Blatt
-				return node.removeEntry(node.containsKey(key));
-			} else {													// Knoten ist ein Knoten
-				returnValue = node.setEntry(keyEntryPosition, removeKey(node.getChild(keyEntryPosition+1), getSmallestNextNode(node.getChild(keyEntryPosition+1)).getKey(0)));
-				if(node.getChild(keyEntryPosition+1).getNumberOfEntrys() == 0) {
-					System.out.println("JO");
-					rotateLeft(node, keyEntryPosition+1);
-				} else if(node.getChild(keyEntryPosition).getNumberOfEntrys() == 0) {
-					System.out.println("NO");
+				returnValue =  node.removeEntry(node.containsKey(key));
+			} else {			// Knoten ist ein Knoten
+				if(node.getChild(keyEntryPosition+1).containsKey(key) >= 0) {
+					NodeEntry newValue = removeKey(node, getSmallestNextNode(node.getChild(keyEntryPosition+1)).getKey(0));
+					showTree();
+					insertEntry(newValue);
+					returnValue = removeKey(node, key);
+					showTree();
+				//node.addEntry(keyEntryPosition, newValue);
+				} else {
+					returnValue = node.setEntry(keyEntryPosition, removeKey(node, getSmallestNextNode(node.getChild(keyEntryPosition+1)).getKey(0)));
 				}
+//				if(node.getChild(keyEntryPosition+1).getNumberOfEntrys() == 0) {
+//					System.out.println("JO");
+//					rotateLeft(node, keyEntryPosition+1);
+//				} else if(node.getChild(keyEntryPosition).getNumberOfEntrys() == 0) {
+//					System.out.println("NO");
+//				}
 			}
 			
 		}
