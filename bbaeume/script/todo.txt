@@ -4,3 +4,27 @@ evtl noch den Baum neben dem Menü zeichnen
 evtl. noch das Konstrukt mit lower und higherchild verwerfen und eine zweite liste einbauen
 
 
+####################################################################################################
+# Tiefe  1 |                    (11                  27)                                | Tiefe  1 #
+# Tiefe  2 |    ( 2       8)            (21)                    (31          36)        | Tiefe  2 #
+# Tiefe  3 |( 1)    ( 4)    ( 9)    (12)    (22  25)    (28  30)    (32  34)    (39  40)| Tiefe  3 #
+# Tiefe  4 |                                                                            | Tiefe  4 #
+####################################################################################################
+JO
+        Schluessel erfolgreich geloescht
+Baum nachher
+Ausgabe des Baums:
+################################################################################################
+# Tiefe  1 |                (11                  27)                                | Tiefe  1 #
+# Tiefe  2 |( 1       8)            (21)                    (31          36)        | Tiefe  2 #
+# Tiefe  3 |    ( 4)    ( 9)    (12)    (22  25)    (28  30)    (32  34)    (39  40)| Tiefe  3 #
+# Tiefe  4 |                                                                        | Tiefe  4 #
+################################################################################################
+Geloeschter Schluessel:
+      key: 2
+	  
+3
+2
+
+7
+1
