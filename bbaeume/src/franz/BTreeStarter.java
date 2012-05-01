@@ -23,6 +23,9 @@ public class BTreeStarter {
 		
 		System.out.printf("%20s%n", "Initiale Erzeugung des B-Baums");
 		BTree tree = new BTree(ConsoleMenu.readInt("Ordnung m des B-Baums [3]: ", 3, 3));
+		//schneller für Tests
+		fillWithRandomData(tree);
+		tree.showTree();
 		
 		int choice = -1;
 		
