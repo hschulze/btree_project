@@ -7,7 +7,7 @@ public class TestClass {
 
 	
 	public static void main(String[] args) {
-		BNode node = new BNode();
+		BNode node = new BNode(null);
 		
 		node.addEntry(new NodeEntry(1));
 		node.addEntry(new NodeEntry(2));

@@ -19,10 +19,15 @@ public class BTree {
 	}
 
 	public NodeEntry searchKey(int key) {
-		return searchKey(root, key);
+		BNode node = searchKey(root, key);
+		if(node == null) {
+			return null;
+		} else {
+			return node.getEntry(node.containsKey(key));
+		}
 	}
 	
-	private NodeEntry searchKey(BNode node, int key) {
+	private BNode searchKey(BNode node, int key) {
 		if(node == null) 
 			return null;
 		
@@ -30,7 +35,8 @@ public class BTree {
 		if(entryPosition < 0) {
 			return searchKey(node.getChild(node.getNextChildPositionForKey(key)), key);
 		} else {
-			return node.getEntry(entryPosition); 
+			//return node.getEntry(entryPosition); 
+			return node;
 		}
 	}
 
@@ -41,16 +47,16 @@ public class BTree {
 	 */
 	public boolean insertEntry(NodeEntry entry) {
 		if (root == null) {							// Noch kein Baum vorhanden
-			root = new BNode();
+			root = new BNode(null);
 		}
-		if(searchKey(entry.getKey()) != null) {	// Schluessel schon vorhanden
+		if(searchKey(entry.getKey()) != null) {		// Schluessel schon vorhanden
 			return false;
 		}
 		
 		insertEntry(root, entry);
 		
 		if (root.getNumberOfEntrys() > ordnung-1) {
-			BNode newRoot = new BNode();
+			BNode newRoot = new BNode(null);
 			splitTree(newRoot, 0, root);
 			root = newRoot;
 		}
@@ -88,10 +94,10 @@ public class BTree {
 		}	
 	}
 
-	private void splitTree(BNode node, int childPositionToSplit, BNode subNodeToSplit) {		
+	private void splitTree(BNode node, int childPositionToSplit, BNode subNodeToSplit) {
 		node.addEntry(childPositionToSplit, subNodeToSplit.removeEntry(middle));
 		
-		BNode rightSubTree = new BNode();
+		BNode rightSubTree = new BNode(node);
 		while(middle < subNodeToSplit.getNumberOfEntrys()) {
 			rightSubTree.addChild(subNodeToSplit.removeChild(middle+1));
 			rightSubTree.addEntry(subNodeToSplit.removeEntry(middle));
@@ -111,71 +117,174 @@ public class BTree {
 		if (searchKey(key) == null) {
 			return null;
 		}
-		NodeEntry result = removeKey(root, key);
+		NodeEntry result = removeKey3(root, key);
 		
 		numberOfTreeEntrys--;
 		return result;
 	}
 	
+	private NodeEntry removeKey3(BNode node, int key) {
+		NodeEntry returnValue = null;
+		BNode nodeWhereToDelete = searchKey(node, key);
+		
+		int keyEntryPosition = nodeWhereToDelete.containsKey(key);
+		
+		if(nodeWhereToDelete.getNumberOfChilds() == 0) {		// Knoten zum Loeschen ist ein Blatt
+			returnValue = nodeWhereToDelete.removeEntry(keyEntryPosition);
+			checkNode(nodeWhereToDelete);
+		} else {												// Knoten zum Loeschen ist ein Knoten
+			//Ersetzen durch Inorder-Nachfolger
+			returnValue = nodeWhereToDelete.setEntry(keyEntryPosition, removeKey3(nodeWhereToDelete.getChild(keyEntryPosition+1), getSmallestNextNode(nodeWhereToDelete.getChild(keyEntryPosition+1)).getKey(0)));
+		}
+		
+		return returnValue;
+	}
+	
+	private void checkNode(BNode node) {
+		if(node.getNumberOfEntrys() < minEntrys && node.getParent() != null) {			// Knoten enthaelt nicht genug Eintraege und ist nicht die Wurzel
+			BNode parent = node.getParent();
+			int parentPosition = 0;
+			while (parent.getChild(parentPosition) != node)
+				parentPosition++;
+			
+			int numberOfLeftSilbingNodeEntrys = parent.getChild(parentPosition-1) != null ? parent.getChild(parentPosition-1).getNumberOfEntrys() : 0;
+			int numberOfRightSilbingNodeEntrys = parent.getChild(parentPosition+1) != null ? parent.getChild(parentPosition+1).getNumberOfEntrys() : 0;
+			
+			if(numberOfLeftSilbingNodeEntrys > minEntrys || numberOfRightSilbingNodeEntrys > minEntrys) {
+				// Fall 2: nextChild besitzt nach dem Loeschen nur m-1 Schluessel && ein Geschwisterknoten besitzt mind. m+1 Schluessel => rotate (168 f)
+				if(numberOfLeftSilbingNodeEntrys < numberOfRightSilbingNodeEntrys) {
+					// Rotation mit dem rechten Geschwisterknoten
+					rotateRight(parent, parentPosition);
+				} else {
+					// Rotation mit dem linken Geschwisterknoten
+					rotateLeft(parent, parentPosition);
+				}
+			} else {
+				// Fall 3: nextChild besitzt nach dem Loeschen nur m-1 Schluessel && die Geschwisterknoten besitzen ebenfalls m Schluessel => merge (170 f)  !!! Beachte, wenn Wurzel !!!
+				merge3(parent, parentPosition);
+				checkNode(parent);
+			}
+		}
+	}
+	
+	private void merge3(BNode node, int nodeKeyPosition) {
+		BNode leftNode = null;
+		BNode rightNode = null;
+		if(nodeKeyPosition == node.getNumberOfChilds()-1) {
+			// nextChild ist das rechteste Kind des Elternknotens
+			leftNode = node.getChild(node.getNumberOfChilds()-1);
+			rightNode = node.getChild(node.getNumberOfChilds());
+		} else {
+			leftNode = node.getChild(nodeKeyPosition);
+			rightNode = node.getChild(nodeKeyPosition+1);
+		}
+		
+		//leftNode.addEntry(removeKey3(node.getParent(), node.getParent().getKey(nodeKeyPosition)));
+		leftNode.addEntry(node.removeEntry(nodeKeyPosition));
+		
+		while(rightNode.getNumberOfChilds() > 0) {
+			leftNode.addChild(rightNode.removeChild(0));
+			leftNode.addEntry(rightNode.removeEntry(0));
+		}
+		
+		node.removeChild(nodeKeyPosition+1);
+	}
+	
+	/**
+	 * @deprecated
+	 * @param node
+	 * @param key
+	 * @return
+	 */
 	private NodeEntry removeKey2(BNode node, int key) {
 		// get information needed
-		BNode delBTNode = searchKey(key).getNode();
-		if (delBTNode == null) {
+		BNode delNode = searchKey(node, key);
+		if (delNode == null) {
 			return null;
 		}
-		int keyIndex = delBTNode.containsKey(key);
-		BNode returnNode = delBTNode.getKey(keyIndex);
+		int keyIndex = delNode.containsKey(key);
+		NodeEntry returnNode = delNode.getEntry(keyIndex);
 
+		if(key == 22)
+			System.out.println();
 
-		if (delBTNode.getNumberOfChilds() == 0) {				// is a leaf **********************************
-			if (delBTNode.nKey > order - 1)
-				// we can delete KeyNode directly
-			{
-				delBTNode.extractKeyNode(keyIndex);
-			} else
-				// we need to get more keys so that we can delete it
-			{
-				BNode parentBTNode = delBTNode.parent;
-				int parentIndex = 0;
-				while (parentBTNode.getBTNode(parentIndex) != delBTNode)
+		if (delNode.getNumberOfChilds() == 0) {				// Schluessel ist in einem Blatt
+			if (delNode.getNumberOfEntrys() > minEntrys) {	// Fall 1: nextChild besitzt nach dem Loeschen noch m Schluessel => fertig 
+				delNode.removeEntry(keyIndex);
+			} else {											// nextChild besitzt nach dem Loeschen nur noch m-1 Schluessel
+				BNode parentNode = delNode.getParent();
+				// ChildIndex beim Vaterknoten bestimmen
+				int parentIndex = 0;						
+				while (parentNode.getChild(parentIndex) != delNode)
 					parentIndex++;
-				if (parentIndex == parentBTNode.nKey) {
-					BNode leftBTNode = parentBTNode.getBTNode(parentIndex - 1);
-					if (leftBTNode.nKey > order - 1) {
-						delBTNode.kArray[keyIndex] = parentBTNode.getKeyNode(parentIndex);
-						parentBTNode.kArray[parentIndex] = leftBTNode.getKeyNode(leftBTNode.nKey - 1);
-						deleteNode(leftBTNode, leftBTNode.getKeyNode(leftBTNode.nKey - 1).getKey());
+				
+				if (parentIndex == parentNode.getNumberOfEntrys()) {		// Wenn der Knoten das letzte Kind des Vaterknotens ist
+					BNode leftNode = parentNode.getChild(parentIndex - 1);
+					if (leftNode.getNumberOfEntrys() > minEntrys) {
+						delNode.setEntry(keyIndex, parentNode.removeEntry(parentIndex));							
+						parentNode.addEntry(parentIndex, leftNode.getEntry(leftNode.getNumberOfEntrys() - 1));
+						removeKey2(leftNode, leftNode.getEntry(leftNode.getNumberOfEntrys() - 1).getKey());
 					} else {
-						delBTNode.mergeWithBTNode();
+						merge2(delNode);
+						delNode.removeEntry(keyIndex);
 					}
 				} else {
-					BNode rightBTNode = parentBTNode.getBTNode(parentIndex + 1);
-					if (rightBTNode.nKey > order - 1) {
-						delBTNode.kArray[keyIndex] = parentBTNode.getKeyNode(parentIndex);
-						parentBTNode.kArray[parentIndex] = rightBTNode.getKeyNode(0);
-						deleteNode(rightBTNode, rightBTNode.getKeyNode(0).getKey());
+					BNode rightNode = parentNode.getChild(parentIndex + 1);
+					if (rightNode.getNumberOfEntrys() > minEntrys) {
+						delNode.setEntry(keyIndex, parentNode.removeEntry(parentIndex));
+						parentNode.addEntry(parentIndex, rightNode.getEntry(0));
+						removeKey2(rightNode, rightNode.getEntry(0).getKey());
 					} else {
-						delBTNode.mergeWithBTNode();
+						merge2(delNode);
+						delNode.removeEntry(keyIndex);
 					}
 				}
 			}
-		} else { // is internal node *********************
-			//try predecesor
-			// get the node to exchange and delete it at leaf position
-			BNode preBTNode = delBTNode.getBTNode(keyIndex);
-			while (preBTNode.getNumberOfChilds() > 0) {
-				preBTNode = preBTNode.getBTNode(preBTNode.nKey);
+		} else {											// Schluessel ist in einem Knoten
+			// suche Vorgaenger und tausche ihn aus
+			BNode preNode = delNode.getChild(keyIndex);
+			while (preNode.getNumberOfChilds() > 0) {
+				preNode = preNode.getChild(preNode.getNumberOfEntrys());
 			}
 
-			// swap nodes
-			BNode tmpKeyNode = preBTNode.getKeyNode(preBTNode.nKey - 1);
-			preBTNode.kArray[preBTNode.nKey - 1] = delBTNode.kArray[keyIndex];
-			delBTNode.kArray[keyIndex] = tmpKeyNode;
-			deleteNode(preBTNode, preBTNode.getKeyNode(preBTNode.nKey - 1).getKey());
+			// Austausch mit dem Vorgaenger
+			NodeEntry tmpKeyNode = preNode.getEntry(preNode.getNumberOfEntrys() - 1);
+			preNode.setEntry(preNode.getNumberOfEntrys() - 1, delNode.removeEntry(keyIndex));
+			delNode.setEntry(keyIndex, tmpKeyNode);
+			removeKey2(preNode, preNode.getEntry(preNode.getNumberOfEntrys() - 1).getKey());
 		}
 		return returnNode;
 	}
+	
+	private void merge2(BNode node) {
+
+		BNode parentNode = node.getParent();
+		BNode mergeNode;
+		int parentIndex = 0;
+
+		while (parentNode.getChild(parentIndex) != node) {		// Ermitteln der Position des Knotens im Vaterknoten
+			parentIndex++;
+		}
+
+		if (parentIndex > 1) {
+			mergeNode = node.getParent().getChild(parentIndex - 1);
+		} else {
+			mergeNode = node.getParent().getChild(parentIndex + 1);
+		}
+
+		if (mergeNode != null) {
+			node.addEntry(parentNode.removeEntry(parentIndex));		// Fuegt den Eintrag aus dem Vaterknoten in den Knoten
+			
+			while(mergeNode.getNumberOfEntrys() > 0) {
+				node.addEntry(mergeNode.removeEntry(0));
+			}
+
+			parentNode.removeChild(parentIndex+1);
+		}
+	}
+	
 	/**
+	 * @deprecated
 	 * Funktion geht davon aus, dass node oder seine Unterbaeume den Schluessel enthalten
 	 * @param node
 	 * @param key
@@ -276,8 +385,8 @@ public class BTree {
 		BNode rightNode = null;
 		if(nodeKeyPosition == node.getNumberOfChilds()-1) {
 			// nextChild ist das rechteste Kind des Elternknotens
-			leftNode = node.getChild(node.getNumberOfChilds()-2);
-			rightNode = node.getChild(node.getNumberOfChilds()-1);
+			leftNode = node.getChild(node.getNumberOfChilds()-1);	// -2
+			rightNode = node.getChild(node.getNumberOfChilds());	// -1
 		} else {
 			leftNode = node.getChild(nodeKeyPosition);
 			rightNode = node.getChild(nodeKeyPosition+1);

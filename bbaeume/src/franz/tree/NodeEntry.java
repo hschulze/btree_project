@@ -5,6 +5,7 @@ public class NodeEntry {
 	private int key;
 	private String data;
 	
+	
 	public NodeEntry(int key) {
 		this(key, "");
 	}

@@ -11,7 +11,10 @@ public class BNode {
 	
 	private List<BNode> childs;
 	
-	public BNode() {
+	private BNode parent;
+	
+	public BNode(BNode parent) {
+		this.parent = parent;
 		entrys = new ArrayList<NodeEntry>();
 		childs = new ArrayList<BNode>();
 	}
@@ -27,7 +30,14 @@ public class BNode {
 	}
 	
 	public NodeEntry setEntry(int index, NodeEntry element) {
-		return entrys.set(index, element);
+		if(element == null && index < getNumberOfEntrys()) {
+			return removeEntry(index);
+		} else if(index < getNumberOfEntrys()) {
+			return entrys.set(index, element);
+		} else {
+			entrys.add(element);
+			return null;
+		}
 	}
 	
 	public NodeEntry removeEntry(int index) {
@@ -50,25 +60,35 @@ public class BNode {
 	}
 	
 	public BNode setChild(int index, BNode element) {
-		if(index >= getNumberOfChilds()) {
+		if(element == null) {
+			return removeChild(index);
+		} else if(index >= getNumberOfChilds()) {
+			element.setParent(this);
 			childs.add(element);
 			return null;
+		} else {
+			element.setParent(this);
+			return childs.set(index, element);
 		}
-		return childs.set(index, element);
 	}
 	
 	public void addChild(BNode element) {
-		if(element != null)
+		if(element != null) {
+			element.setParent(this);
 			childs.add(element);
+		}
 	}
 	
 	public void addChild(int index, BNode element) {
-		if(element != null)
+		if(element != null) {
+			element.setParent(this);
 			childs.add(index, element);
+		}
 	}
 	
 	public BNode removeChild(int index) {
 		if(index > getNumberOfChilds() - 1 || index == -1) return null;
+		childs.get(index).setParent(null);
 		return childs.remove(index);
 	}
 	
@@ -136,5 +156,13 @@ public class BNode {
 			}
 		}
 		return position;
+	}
+	
+	public BNode getParent() {
+		return parent;
+	}
+	
+	public void setParent(BNode parent) {
+		this.parent = parent;
 	}
 }
