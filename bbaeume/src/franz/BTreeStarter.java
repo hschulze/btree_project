@@ -87,7 +87,7 @@ public class BTreeStarter {
 				successfulInsert = tree.insertEntry(new NodeEntry(randNumber));
 				failedInserts++;
 			} while(!successfulInsert && failedInserts < 100);
-			//System.out.println(randNumber);
+			System.out.println(randNumber);
 			if(failedInserts == 100) {
 				System.out.println("Fehler: Zu viele (100) Einfuegeversuche fehlgeschlagen!\n"+
 								   "        Es wurden " + (i == 0 ? "keine": "nur " + i) + " Zahlen eingefuegt.");
