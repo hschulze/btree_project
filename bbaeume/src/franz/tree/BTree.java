@@ -180,18 +180,24 @@ public class BTree {
 			// nextChild ist das rechteste Kind des Elternknotens
 			leftNode = node.getChild(node.getNumberOfChilds()-2);
 			rightNode = node.getChild(node.getNumberOfChilds()-1);
+			
+			//leftNode.addEntry(removeKey(node.getParent(), node.getParent().getKey(nodeKeyPosition)));			// Geht grundsaetzlich, außer dass das der Vater noch verschoben werden muss
+			leftNode.addEntry(node.removeEntry(nodeKeyPosition));
 		} else {
 			leftNode = node.getChild(nodeKeyPosition);
 			rightNode = node.getChild(nodeKeyPosition+1);
+			
+			leftNode.addEntry(node.removeEntry(nodeKeyPosition));
 		}
 		
-		//leftNode.addEntry(removeKey3(node.getParent(), node.getParent().getKey(nodeKeyPosition)));
-		leftNode.addEntry(node.removeEntry(nodeKeyPosition));
+		
+		//
 		
 		while(rightNode.getNumberOfEntrys() > 0) {
 			leftNode.addChild(rightNode.removeChild(0));
 			leftNode.addEntry(rightNode.removeEntry(0));
 		}
+		leftNode.addChild(rightNode.removeChild(0));
 		
 		node.removeChild(nodeKeyPosition+1);
 	}
