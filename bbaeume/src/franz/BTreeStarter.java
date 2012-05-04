@@ -11,7 +11,6 @@ public class BTreeStarter {
 	public static void main(String[] args) { 
 		ConsoleMenu console = new ConsoleMenu();
 
-		
 		console.addMenuItem("Erzeuge einen neuen B-Baum", 1);
 		console.addMenuItem("Zeichne Baum", 2);
 		console.addMenuItem("Fuelle den Baum mit Zufallszahlen", 3);
