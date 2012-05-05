@@ -8,8 +8,11 @@ import franz.utils.ConsoleMenu;
 
 public class BTreeStarter {
 
-	public static void main(String[] args) { 
-		ConsoleMenu console = new ConsoleMenu();
+	public static void main(String[] args) {
+		System.out.printf("%20s%n", "Initiale Erzeugung des B-Baums");
+		BTree tree = new BTree(ConsoleMenu.readInt("Ordnung m des B-Baums [3]: ", 3, 3));
+		
+		ConsoleMenu console = new ConsoleMenu(tree);
 
 		console.addMenuItem("Erzeuge einen neuen B-Baum", 1);
 		console.addMenuItem("Zeichne Baum", 2);
@@ -20,11 +23,9 @@ public class BTreeStarter {
 		console.addMenuItem("Zeige B-Baum-Statistik", 9);
 		console.addMenuItem("Beenden", 0);
 		
-		System.out.printf("%20s%n", "Initiale Erzeugung des B-Baums");
-		BTree tree = new BTree(ConsoleMenu.readInt("Ordnung m des B-Baums [3]: ", 3, 3));
 		//schneller für Tests
 		fillWithRandomData(tree);
-		tree.showTree();
+		tree.printTree();
 		
 		int choice = -1;
 		
@@ -35,17 +36,16 @@ public class BTreeStarter {
 			switch (choice) {
 				case 1:
 					tree = new BTree(ConsoleMenu.readInt("Ordnung m des B-Baums [3]: ", 3, 2));
+					console.setTree(tree);
 					break;
 				case 2:
-					tree.showTree();
+					tree.printTree();
 					break;
 				case 3:
 					fillWithRandomData(tree);
-					tree.showTree();
 					break;
 				case 4:
 					addOneNumber(tree);
-					tree.showTree();
 					break;
 				case 6:
 					searchKey(tree);
@@ -54,7 +54,7 @@ public class BTreeStarter {
 					deleteKey(tree);
 					break;
 				case 9:
-					tree.showStat();
+					tree.printStats();
 					break;
 				default:
 					break;
@@ -71,9 +71,8 @@ public class BTreeStarter {
 	}
 
 	public static void fillWithRandomData(BTree tree) {
-		int minNumberOfValues = ConsoleMenu.readInt("Anzahl der Schlüssel [20]: ", 20);
-		int defaultValue = minNumberOfValues * 2;
-		int maxValue = ConsoleMenu.readInt("Maximaler Wert [" + minNumberOfValues + "]: ", minNumberOfValues, minNumberOfValues);
+		int minNumberOfValues = ConsoleMenu.readInt("Anzahl der Schluessel [20]: ", 20);
+		int maxValue = ConsoleMenu.readInt("Maximaler Wert [" + minNumberOfValues*2 + "]: ", minNumberOfValues*2, minNumberOfValues);
 		int seed = ConsoleMenu.readInt("Seed [4711]: ", 4711);
 		
 		Random rand = new Random((long) seed);
@@ -94,6 +93,7 @@ public class BTreeStarter {
 			}
 			failedInserts = 0;
 		}
+		tree.printTree();
 	}
 	
 	public static void addOneNumber(BTree tree) {
@@ -102,7 +102,7 @@ public class BTreeStarter {
 		} else {
 			System.out.printf("%40s%n", "Schluessel nicht eingefuegt");
 		}
-			
+		tree.printTree();			
 	}
 	
 	public static void searchKey(BTree tree) {
@@ -117,12 +117,12 @@ public class BTreeStarter {
 	private static void deleteKey(BTree tree) {
 		int keyToDelete = ConsoleMenu.readInt("Zu loeschender Schluessel: ", -1, 0);
 		System.out.println("Baum vorher");
-		tree.showTree();
+		tree.printTree();
 		NodeEntry removedEntry = tree.removeEntry(keyToDelete);
 		if(removedEntry != null) {
 			System.out.printf("%40s%n", "Schluessel erfolgreich geloescht");
 			System.out.println("Baum nachher");
-			tree.showTree();
+			tree.printTree();
 			System.out.println("Geloeschter Schluessel:");
 			System.out.println("      key: " + removedEntry.getKey());
 		} else {

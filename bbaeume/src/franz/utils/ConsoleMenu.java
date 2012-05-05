@@ -2,19 +2,22 @@ package franz.utils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import franz.tree.NodeEntry;
+import franz.tree.BTree;
+
 
 public class ConsoleMenu {
 
 	private Map<Integer, String> menuItems;
 	
-	public ConsoleMenu() {
-	}
+	private BTree tree;
 	
+	public ConsoleMenu(BTree tree) {
+		setTree(tree);
+	}
+
 	public void addMenuItem(String text, int number) {
 		getMenuItems().put(number, text);
 	}
@@ -26,10 +29,15 @@ public class ConsoleMenu {
 		
 		for(int i = 1; i < 10; i++) {
 			if(getMenuItems().get(i) != null) {
-				sb.append(String.format("%45s [%d]\n", menuItems.get(i), i));
-			} else {
-				sb.append("\n");
+				sb.append(String.format("%45s [%d]", menuItems.get(i), i));
+			} 
+			if(i <= getTree().getMaxHeight()) {
+				sb.append(String.format(" # Tiefe %2d |", i));
+				tree.printLine(sb, tree.getRoot(), i);
+				sb.append('#');
 			}
+				
+			sb.append("\n");
 		}
 		
 		if(menuItems.get(0) != null)
@@ -74,9 +82,12 @@ public class ConsoleMenu {
 		}
 		return menuItems;
 	}
-
-	private void setMenuItems(Map<Integer, String> menuItems) {
-		this.menuItems = menuItems;
-	}
 	
+	private BTree getTree() {
+		return tree;
+	}
+
+	public void setTree(BTree tree) {
+		this.tree = tree;
+	}
 }

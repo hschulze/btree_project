@@ -2,14 +2,16 @@ package franz.tree;
 
 public class BTree {
 
-	private static final int TEXT_WIDTH = 24;
+	private static final int ENTRY_WIDTH = 4;
+
+	private static final int TEXT_WIDTH = 13;
 	
 	/**
-	 * Knoten hat
-	 * mindestens ordnung/2 söhne
-	 * maximal ordnung soehne
-	 * maximal ordnung-1 schluessel
-	 * mit k söhne speichert k-1 schlüssel
+	 * Knoten hat:<br />
+	 * <li>mindestens ordnung/2 soehne</li>
+	 * <li>maximal ordnung soehne</li>
+	 * <li>maximal ordnung-1 schluessel</li>
+	 * <li>mit k soehne speichert k-1 schluessel</li>
 	 */
 	private int order;
 	private int numberOfTreeEntries = 0;
@@ -19,8 +21,6 @@ public class BTree {
 
 	public BTree(int order) {
 		setOrder(order);
-		setMinEntries((int) Math.ceil(getOrder() / 2));	// -1
-		setMiddle(getOrder() / 2);
 	}
 
 	public NodeEntry searchKey(int key) {
@@ -153,7 +153,7 @@ public class BTree {
 		} else {												// Knoten zum Loeschen ist ein Knoten
 			//Ersetzen durch Inorder-Nachfolger
 			
-			//returnValue = nodeWhereToDelete.setEntry(keyEntryPosition, removeKey(nodeWhereToDelete.getChild(keyEntryPosition+1), getSmallestNextNode(nodeWhereToDelete.getChild(keyEntryPosition+1)).getKey(0)));
+//			returnValue = nodeWhereToDelete.setEntry(keyEntryPosition, removeKey(nodeWhereToDelete.getChild(keyEntryPosition+1), getSmallestNextNode(nodeWhereToDelete.getChild(keyEntryPosition+1)).getKey(0)));
 			
 			returnValue = nodeWhereToDelete.removeEntry(keyEntryPosition);
 			nodeWhereToDelete.addEntry(keyEntryPosition, getSmallestNextNode(nodeWhereToDelete.getChild(keyEntryPosition+1)).getEntry(0));
@@ -196,11 +196,11 @@ public class BTree {
 		BNode rightNode = null;
 		if(nodeKeyPosition == node.getNumberOfChildren()-1) {
 			// nextChild ist das rechteste Kind des Elternknotens
-			leftNode = node.getChild(node.getNumberOfChildren()-2);
-			rightNode = node.getChild(node.getNumberOfChildren()-1);
+			leftNode = node.getChild(nodeKeyPosition-1);
+			rightNode = node.getChild(nodeKeyPosition);
 			
 			//leftNode.addEntry(removeKey(node.getParent(), node.getParent().getKey(nodeKeyPosition)));			// Geht grundsaetzlich, außer dass das der Vater noch verschoben werden muss
-			leftNode.addEntry(node.removeEntry(nodeKeyPosition));
+			leftNode.addEntry(node.removeEntry(nodeKeyPosition-1));
 		} else {
 			leftNode = node.getChild(nodeKeyPosition);
 			rightNode = node.getChild(nodeKeyPosition+1);
@@ -261,7 +261,7 @@ public class BTree {
 			return node;
 	}
 
-	public void showTree() {
+	public void printTree() {
 		System.out.println("Ausgabe des Baums:");
 		
 		int maxHeight = getMaxHeight();
@@ -272,36 +272,37 @@ public class BTree {
 		String border = sb.toString();
 		System.out.println(border);
 		sb = new StringBuilder();
-		for (int i = 1; i <= maxHeight; ++i) {
+		for (int i = 1; i <= getMaxHeight(); ++i) {
 			sb.append(String.format("# Tiefe %2d |", i));
 			printLine(sb, getRoot(), i);
-			sb.append(String.format("| Tiefe %2d #", i));
+			//sb.append(String.format("| Tiefe %2d #", i));
+			sb.append("#");
 			sb.append("\n");
 		}
 		System.out.print(sb.toString());
 		System.out.println(border);
 	}
 
-	private void printLine(StringBuilder sb, BNode node, int depth) {
+	public void printLine(StringBuilder sb, BNode node, int depth) {
 		if (node == null)
 			return;
 		for (int i = 0; i < node.getNumberOfEntries(); i++) {
 			if (depth == 1) {
 				fillSpaces(sb, getWidth(node.getChild(i)));
 				if (i == 0 && node.getNumberOfEntries() == 1) { 								// nur ein Eintrag in Knoten
-					sb.append(String.format("(%2s)", node.getKey(i)));
+					sb.append(String.format("(%"+(ENTRY_WIDTH-2)+"s)", node.getKey(i)));
 				} else if (i == 0) { 															// ist erster Eintrag in Knoten
-					sb.append(String.format("(%2s ", node.getKey(i)));
+					sb.append(String.format("(%"+(ENTRY_WIDTH-2)+"s ", node.getKey(i)));
 				} else if (i + 1 == node.getNumberOfEntries()) { 								// ist letzer Eintrag in Knoten
-					sb.append(String.format(" %2s)", node.getKey(i)));
+					sb.append(String.format(" %"+(ENTRY_WIDTH-2)+"s)", node.getKey(i)));
 				} else {
-					sb.append(String.format(" %2s ", node.getKey(i)));
+					sb.append(String.format(" %"+(ENTRY_WIDTH-2)+"s ", node.getKey(i)));
 				}
 				if(i+1 == node.getNumberOfEntries())
 					fillSpaces(sb, getWidth(node.getChild(i+1)));
 			} else {
 				printLine(sb, node.getChild(i), depth - 1);
-				fillSpaces(sb, 4);
+				fillSpaces(sb, ENTRY_WIDTH);
 				if(i+1 == node.getNumberOfEntries())
 					printLine(sb, node.getChild(i+1), depth - 1);
 			}
@@ -309,7 +310,7 @@ public class BTree {
 	}
 
 	private void fillSpaces(StringBuilder sb, int count) {
-		for (int i = 0; i < count; i++)
+		for(int i = 0; i < count; i++)
 			sb.append(' ');
 	}
 
@@ -325,17 +326,17 @@ public class BTree {
 			if (i+1 == node.getNumberOfEntries())
 				rightWidth += getWidth(node.getChild(i+1));
 		}
-		return leftWidth + (4 * node.getNumberOfEntries()) + rightWidth;
+		return leftWidth + (ENTRY_WIDTH * node.getNumberOfEntries()) + rightWidth;
 	}
 
-	public void showStat() {
+	public void printStats() {
 		System.out.println("Ausgabe der Statistik:");
-		System.out.println("Ordung:    " + order);
-		System.out.println("MinEntrys: " + minEntries);
-		System.out.println("MaxEntrys: " + (order-1));
-		System.out.println("MinHeight: " + getMinHeight());
-		System.out.println("MaxHeight: " + getMaxHeight());
-		
+		System.out.printf("%25s: %2d\n", "Ordnung", getOrder());
+		System.out.printf("%25s: %2d\n", "Eintraege", getNumberOfTreeEntries());
+		System.out.printf("%25s: %2d\n", "MinEintraege/Knoten", getMinEntries());
+		System.out.printf("%25s: %2d\n", "MaxEintraege/Knoten", getOrder()-1);
+		System.out.printf("%25s: %2d\n", "MinHoehe", getMinHeight());
+		System.out.printf("%25s: %2d\n", "MaxHoehe", getMaxHeight());		
 	}
 
 	public int getMinHeight() {
@@ -352,6 +353,8 @@ public class BTree {
 
 	private void setOrder(int order) {
 		this.order = order;
+		setMinEntries((int) Math.ceil(getOrder() / 2));	// -1
+		setMiddle(getOrder() / 2);
 	}
 
 	private int getNumberOfTreeEntries() {
@@ -378,7 +381,7 @@ public class BTree {
 		this.middle = middle;
 	}
 
-	private BNode getRoot() {
+	public BNode getRoot() {
 		return root;
 	}
 

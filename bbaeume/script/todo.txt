@@ -4,4 +4,4 @@ evtl noch den Baum neben dem Menü zeichnen
 
 public kommentieren
 
-
+evtl. Texte in Properties-Datei
