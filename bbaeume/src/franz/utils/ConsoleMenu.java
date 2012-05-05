@@ -2,18 +2,21 @@ package franz.utils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+
+import franz.tree.NodeEntry;
 
 public class ConsoleMenu {
 
-	private HashMap<Integer, String> menuItems;
+	private Map<Integer, String> menuItems;
 	
 	public ConsoleMenu() {
-		menuItems = new HashMap<Integer, String>();
 	}
 	
 	public void addMenuItem(String text, int number) {
-		menuItems.put(new Integer(number), text);
+		getMenuItems().put(number, text);
 	}
 	
 	public int showMenu() {
@@ -22,15 +25,15 @@ public class ConsoleMenu {
 		sb.append("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
 		
 		for(int i = 1; i < 10; i++) {
-			if(menuItems.get(new Integer(i)) != null) {
-				sb.append(String.format("%45s [%d]\n", menuItems.get(new Integer(i)), i));
+			if(getMenuItems().get(i) != null) {
+				sb.append(String.format("%45s [%d]\n", menuItems.get(i), i));
 			} else {
 				sb.append("\n");
 			}
 		}
 		
-		if(menuItems.get(new Integer(0)) != null)
-			sb.append(String.format("%45s [%d]\n", menuItems.get(new Integer(0)), 0));
+		if(menuItems.get(0) != null)
+			sb.append(String.format("%45s [%d]\n", menuItems.get(0), 0));
 		sb.append("-------------------------------------------------\n");
 		sb.append("Auswahl: ");
 		return readInt(sb.toString());
@@ -63,6 +66,17 @@ public class ConsoleMenu {
 		} while (result < min);
 		
 		return result;
+	}
+
+	private Map<Integer, String> getMenuItems() {
+		if(menuItems == null) {
+			menuItems = new HashMap<Integer, String>();
+		}
+		return menuItems;
+	}
+
+	private void setMenuItems(Map<Integer, String> menuItems) {
+		this.menuItems = menuItems;
 	}
 	
 }

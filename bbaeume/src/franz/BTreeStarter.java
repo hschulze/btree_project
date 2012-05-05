@@ -64,26 +64,26 @@ public class BTreeStarter {
 		System.out.println("Anwendung wird beendet...");
 		try {
 			Thread.sleep(500);
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		System.out.println("Beendet...");
 	}
 
 	public static void fillWithRandomData(BTree tree) {
-		int numberOfValues = ConsoleMenu.readInt("Anzahl der Schlüssel [20]: ", 20);
-		int minValue = numberOfValues;
-		int defaultValue = minValue * 2;
-		int maxValue = ConsoleMenu.readInt("Maximaler Wert [" + defaultValue + "]: ", defaultValue, minValue);
+		int minNumberOfValues = ConsoleMenu.readInt("Anzahl der Schlüssel [20]: ", 20);
+		int defaultValue = minNumberOfValues * 2;
+		int maxValue = ConsoleMenu.readInt("Maximaler Wert [" + minNumberOfValues + "]: ", minNumberOfValues, minNumberOfValues);
 		int seed = ConsoleMenu.readInt("Seed [4711]: ", 4711);
 		
 		Random rand = new Random((long) seed);
 		int randNumber = 0;
-		boolean successfulInsert;
+		boolean successfulInsert = false;
 		int failedInserts = 0;
-		for(int i = 0; i < numberOfValues; i++) {
-			successfulInsert = false;
+		for(int i = 0; i < minNumberOfValues; i++) {
 			do {
 				randNumber = rand.nextInt(maxValue) + 1;
-				successfulInsert = tree.insertEntry(new NodeEntry(randNumber));
+				successfulInsert = tree.insertEntry(randNumber);
 				failedInserts++;
 			} while(!successfulInsert && failedInserts < 100);
 			System.out.println(randNumber);

@@ -19,7 +19,7 @@ public class TestClass {
 		if(test == node)
 			System.out.println("JA");
 			
-		for(int i = 0; i < node.getNumberOfEntrys(); i++) {
+		for(int i = 0; i < node.getNumberOfEntries(); i++) {
 			System.out.println(i + " " + node.getEntry(i).getKey());
 		}
 
