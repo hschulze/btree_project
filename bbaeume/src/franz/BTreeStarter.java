@@ -25,7 +25,6 @@ public class BTreeStarter {
 		
 		//schneller für Tests
 		fillWithRandomData(tree);
-		tree.printTree();
 		
 		int choice = -1;
 		

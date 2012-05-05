@@ -2,7 +2,7 @@ package franz.tree;
 
 public class BTree {
 
-	private static final int ENTRY_WIDTH = 4;
+	private static final int ENTRY_WIDTH = 5;
 
 	private static final int TEXT_WIDTH = 13;
 	
@@ -314,7 +314,7 @@ public class BTree {
 			sb.append(' ');
 	}
 
-	private int getWidth(BNode node) {
+	public int getWidth(BNode node) {
 		if (node == null)
 			return 0;
 		int leftWidth = 0;

@@ -25,19 +25,30 @@ public class ConsoleMenu {
 	public int showMenu() {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
+		sb.append("+++++++++++++++++++++++++++++++++++++++++++++++++ ");
+		for(int j = 0; j < getTree().getWidth(tree.getRoot()) + 14; j++) {
+			sb.append("#");
+		}
+		sb.append('\n');
 		
-		for(int i = 1; i < 10; i++) {
+		for(int i = 1; i < 10 || i <= getTree().getMaxHeight()+1; i++) {
 			if(getMenuItems().get(i) != null) {
-				sb.append(String.format("%45s [%d]", menuItems.get(i), i));
-			} 
+				sb.append(String.format("%45s [%d] ", menuItems.get(i), i));
+			} else {
+				sb.append(String.format("%50s", ""));
+			}
 			if(i <= getTree().getMaxHeight()) {
-				sb.append(String.format(" # Tiefe %2d |", i));
+				sb.append(String.format("# Tiefe %2d |", i));
 				tree.printLine(sb, tree.getRoot(), i);
 				sb.append('#');
 			}
+			if(i == getTree().getMaxHeight() + 1) {
+				for(int j = 0; j < getTree().getWidth(tree.getRoot()) + 14; j++) {
+					sb.append("#");
+				}
+			}
 				
-			sb.append("\n");
+			sb.append('\n');
 		}
 		
 		if(menuItems.get(0) != null)
