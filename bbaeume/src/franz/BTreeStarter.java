@@ -8,11 +8,13 @@ import franz.utils.ConsoleMenu;
 
 public class BTreeStarter {
 
+	public static final boolean IS_DEBUG = true;
+	
 	public static void main(String[] args) {
 		System.out.printf("%20s%n", "Initiale Erzeugung des B-Baums");
 		BTree tree = new BTree(ConsoleMenu.readInt("Ordnung m des B-Baums [3]: ", 3, 3));
 		
-		ConsoleMenu console = new ConsoleMenu(tree);
+		ConsoleMenu console = new ConsoleMenu(tree, !IS_DEBUG);
 
 		console.addMenuItem("Erzeuge einen neuen B-Baum", 1);
 		console.addMenuItem("Zeichne Baum", 2);
@@ -23,8 +25,10 @@ public class BTreeStarter {
 		console.addMenuItem("Zeige B-Baum-Statistik", 9);
 		console.addMenuItem("Beenden", 0);
 		
-		//schneller für Tests
-		fillWithRandomData(tree);
+		if(IS_DEBUG) {
+			//schneller für Tests
+			fillWithRandomData(tree);
+		}
 		
 		int choice = -1;
 		
@@ -81,10 +85,10 @@ public class BTreeStarter {
 		for(int i = 0; i < minNumberOfValues; i++) {
 			do {
 				randNumber = rand.nextInt(maxValue) + 1;
-				successfulInsert = tree.insertEntry(randNumber);
+				successfulInsert = tree.insertEntry(randNumber, (1000-randNumber) + "");
 				failedInserts++;
 			} while(!successfulInsert && failedInserts < 100);
-			System.out.println(randNumber);
+			if(IS_DEBUG) System.out.println(randNumber);
 			if(failedInserts == 100) {
 				System.out.println("Fehler: Zu viele (100) Einfuegeversuche fehlgeschlagen!\n"+
 								   "        Es wurden " + (i == 0 ? "keine": "nur " + i) + " Zahlen eingefuegt.");
@@ -107,7 +111,7 @@ public class BTreeStarter {
 	public static void searchKey(BTree tree) {
 		NodeEntry searchResult = tree.searchKey(ConsoleMenu.readInt("Zu suchender Schluessel: "));
 		if(searchResult != null) {
-			System.out.printf("Schluessel mit dem Key %d gefunden\n und er enhaelt folgende Daten:\n %s", searchResult.getKey(), searchResult.getData());
+			System.out.printf("Schluessel mit dem Key %d gefunden\n und er enhaelt folgende Daten:\n         %s\n", searchResult.getKey(), searchResult.getData());
 		} else {
 			System.out.printf("%40s%n", "Schluessel nicht gefunden");
 		}

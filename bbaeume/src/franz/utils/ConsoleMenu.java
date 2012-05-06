@@ -13,9 +13,11 @@ public class ConsoleMenu {
 	private Map<Integer, String> menuItems;
 	
 	private BTree tree;
+	private boolean showMenu;
 	
-	public ConsoleMenu(BTree tree) {
+	public ConsoleMenu(BTree tree, boolean showMenu) {
 		setTree(tree);
+		setShowMenu(showMenu);
 	}
 
 	public void addMenuItem(String text, int number) {
@@ -26,8 +28,10 @@ public class ConsoleMenu {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("+++++++++++++++++++++++++++++++++++++++++++++++++ ");
-		for(int j = 0; j < getTree().getWidth(tree.getRoot()) + 14; j++) {
-			sb.append("#");
+		if(showMenu) {
+			for(int j = 0; j < getTree().getWidth(tree.getRoot()) + 14; j++) {
+				sb.append("#");
+			}
 		}
 		sb.append('\n');
 		
@@ -37,12 +41,12 @@ public class ConsoleMenu {
 			} else {
 				sb.append(String.format("%50s", ""));
 			}
-			if(i <= getTree().getMaxHeight()) {
+			if(isShowMenu() && i <= getTree().getMaxHeight()) {
 				sb.append(String.format("# Tiefe %2d |", i));
 				tree.printLine(sb, tree.getRoot(), i);
 				sb.append('#');
 			}
-			if(i == getTree().getMaxHeight() + 1) {
+			if(isShowMenu() && i == getTree().getMaxHeight() + 1) {
 				for(int j = 0; j < getTree().getWidth(tree.getRoot()) + 14; j++) {
 					sb.append("#");
 				}
@@ -100,5 +104,17 @@ public class ConsoleMenu {
 
 	public void setTree(BTree tree) {
 		this.tree = tree;
+	}
+
+	public void setMenuItems(Map<Integer, String> menuItems) {
+		this.menuItems = menuItems;
+	}
+
+	public boolean isShowMenu() {
+		return showMenu;
+	}
+
+	public void setShowMenu(boolean showMenu) {
+		this.showMenu = showMenu;
 	}
 }
