@@ -194,16 +194,19 @@ public class BTree {
 	private void merge(BNode node, int nodeKeyPosition) {
 		BNode leftNode = null;
 		BNode rightNode = null;
+		int rightNodePosition;
 		if(nodeKeyPosition == node.getNumberOfChildren()-1) {
 			// nextChild ist das rechteste Kind des Elternknotens
 			leftNode = node.getChild(nodeKeyPosition-1);
 			rightNode = node.getChild(nodeKeyPosition);
+			rightNodePosition = nodeKeyPosition;
 			
 			//leftNode.addEntry(removeKey(node.getParent(), node.getParent().getKey(nodeKeyPosition)));			// Geht grundsaetzlich, auﬂer dass das der Vater noch verschoben werden muss
 			leftNode.addEntry(node.removeEntry(nodeKeyPosition-1));
 		} else {
 			leftNode = node.getChild(nodeKeyPosition);
 			rightNode = node.getChild(nodeKeyPosition+1);
+			rightNodePosition = nodeKeyPosition + 1;
 			
 			leftNode.addEntry(node.removeEntry(nodeKeyPosition));
 		}
@@ -214,7 +217,7 @@ public class BTree {
 		}
 		leftNode.addChild(rightNode.removeChild(0));
 		
-		node.removeChild(nodeKeyPosition+1);
+		node.removeChild(rightNodePosition);
 	}
 	
 	private void rotateRight(BNode node, int nodeKeyPosition) {
