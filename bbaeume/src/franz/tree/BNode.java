@@ -13,6 +13,10 @@ public class BNode {
 	
 	private BNode parent;
 	
+	/**
+	 * Konstruktor fuer einen Knoten eines B-Baums
+	 * @param parent Knoten, der den Vaterknoten des Knotens darstellt
+	 */
 	public BNode(BNode parent) {
 		setParent(parent);
 	}
@@ -31,6 +35,10 @@ public class BNode {
 		return children;
 	}
 	
+	/**
+	 * Funktion zum Einfuegen eines Eintrags in den Knoten
+	 * @param element Eintrag der in den Knoten eingefuegt wird
+	 */
 	public void addEntry(NodeEntry element) {
 		if(element != null)
 			getEntries().add(element);

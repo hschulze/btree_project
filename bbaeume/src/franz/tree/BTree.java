@@ -40,7 +40,6 @@ public class BTree {
 		if(entryPosition < 0) {
 			return searchKey(node.getChild(node.getNextChildPositionForKey(key)), key);
 		} else {
-			//return node.getEntry(entryPosition); 
 			return node;
 		}
 	}
@@ -241,21 +240,9 @@ public class BTree {
 	}
 	
 	/**
-	 * Methode zum Auffinden des vorherigen groesseren Schluessels im linken Teilbaum
-	 * @param node
-	 * @return
-	 */
-	private BNode getGreatestPreviousNode(BNode node) {
-		if(node.getNumberOfChildren() > 0)
-			return getGreatestPreviousNode(node.getChild(node.getNumberOfEntries()));
-		else
-			return node;
-	}
-	
-	/**
 	 * Methode zum Auffinden des naechst kleineren Schluessels im rechten Teilbaum
 	 * @param node
-	 * @return
+	 * @return BNode, der den kleinsten naechsten Nachfolger des Knotens node enthaelt
 	 */
 	private BNode getSmallestNextNode(BNode node) {
 		if(node.getNumberOfChildren() > 0)
@@ -264,10 +251,12 @@ public class BTree {
 			return node;
 	}
 
+	/**
+	 * Funktion zur Ausgabe des gesamten B-Baums auf der Konsole
+	 */
 	public void printTree() {
 		System.out.println("Ausgabe des Baums:");
 		
-		int maxHeight = getMaxHeight();
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < getWidth(getRoot()) + TEXT_WIDTH; i++) {
 			sb.append('#');
@@ -286,6 +275,12 @@ public class BTree {
 		System.out.println(border);
 	}
 
+	/**
+	 * Funktion 
+	 * @param sb StringBuilder, an den die Zeile angefuegt wird
+	 * @param node Knoten, von dem die Zeile der Tiefe depth ausgegeben wird
+	 * @param depth 
+	 */
 	public void printLine(StringBuilder sb, BNode node, int depth) {
 		if (node == null)
 			return;

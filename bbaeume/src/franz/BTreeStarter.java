@@ -8,7 +8,7 @@ import franz.utils.ConsoleMenu;
 
 public class BTreeStarter {
 
-	public static final boolean IS_DEBUG = true;
+	public static final boolean IS_DEBUG = false;
 	
 	public static void main(String[] args) {
 		System.out.printf("%20s%n", "Initiale Erzeugung des B-Baums");
@@ -73,6 +73,10 @@ public class BTreeStarter {
 		System.out.println("Beendet...");
 	}
 
+	/**
+	 * Menuepunkt mit Hilfe dessen mehrere Schluessel eingefuegt werden
+	 * @param tree BTree-Objekt in den mehrere Schluessel eingefuegt werden
+	 */
 	public static void fillWithRandomData(BTree tree) {
 		int minNumberOfValues = ConsoleMenu.readInt("Anzahl der Schluessel [20]: ", 20);
 		int maxValue = ConsoleMenu.readInt("Maximaler Wert [" + minNumberOfValues*2 + "]: ", minNumberOfValues*2, minNumberOfValues);
@@ -99,6 +103,10 @@ public class BTreeStarter {
 		tree.printTree();
 	}
 	
+	/**
+	 * Menuepunkt mit Hilfe dessen ein Schluessel eingefuegt wird
+	 * @param tree BTree-Objekt in den ein Schluessel eingefuegt wird
+	 */
 	public static void addOneNumber(BTree tree) {
 		if(tree.insertEntry(new NodeEntry(ConsoleMenu.readInt("Einzufuegender Schluessel: ")))) {
 			System.out.printf("%40s%n", "Schluessel erfolgreich eingefuegt");
@@ -108,6 +116,10 @@ public class BTreeStarter {
 		tree.printTree();			
 	}
 	
+	/**
+	 * Menuepunkt mit Hilfe dessen ein Schluessel gesucht wird
+	 * @param tree BTree-Objekt in dem ein Schluessel gesucht wird
+	 */
 	public static void searchKey(BTree tree) {
 		NodeEntry searchResult = tree.searchKey(ConsoleMenu.readInt("Zu suchender Schluessel: "));
 		if(searchResult != null) {
@@ -117,6 +129,10 @@ public class BTreeStarter {
 		}
 	}
 	
+	/**
+	 * Menuepunkt mit Hilfe dessen ein Schluessel geloescht wird
+	 * @param tree BTree-Objekt aus dem ein Schluessel geloescht wird
+	 */
 	private static void deleteKey(BTree tree) {
 		int keyToDelete = ConsoleMenu.readInt("Zu loeschender Schluessel: ", -1, 0);
 		System.out.println("Baum vorher");
