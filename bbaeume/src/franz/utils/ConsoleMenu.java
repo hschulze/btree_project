@@ -15,15 +15,29 @@ public class ConsoleMenu {
 	private BTree tree;
 	private boolean showMenu;
 	
+	/**
+	 * Konstruktor fuer ein Menue-Objekt
+	 * @param tree - B-Baum, der in dem ConsoleMenu-Objekt verwaltet wird
+	 * @param showMenu - gibt an, ob der B-Baum neben dem Menue angezeigt werden soll
+	 */
 	public ConsoleMenu(BTree tree, boolean showMenu) {
 		setTree(tree);
 		setShowMenu(showMenu);
 	}
-
+	
+	/**
+	 * Funktion zum Aufbau eines Auswahl-Menues
+	 * @param text - Text des Menue-Punkts
+	 * @param number - Nummer des Menue-Punkts
+	 */
 	public void addMenuItem(String text, int number) {
 		getMenuItems().put(number, text);
 	}
 	
+	/**
+	 * Funktion die das Menue ausgibt und die darauffolgende Auswahl einliest
+	 * @return getroffene Auswahl durch den Benutzer
+	 */
 	public int showMenu() {
 		StringBuilder sb = new StringBuilder();
 		
@@ -62,14 +76,32 @@ public class ConsoleMenu {
 		return readInt(sb.toString());
 	}
 	
+	/**
+	 * Funktion zum Einlesen eines int-Werts
+	 * @param text - String der bei der Eingabe zur Erlaeuterung steht
+	 * @return eingelesener int-Wert
+	 */
 	public static int readInt(String text) {
 		return readInt(text, -1);
 	}
 	
+	/**
+	 * Funktion zum Einlesen eines int-Werts
+	 * @param text - String der bei der Eingabe zur Erlaeuterung steht
+	 * @param defaultValue - bei keiner Eingabe wird dieser Wert uebernommen und zurueckgegeben
+	 * @return eingelesener int-Wert
+	 */
 	public static int readInt(String text, int defaultValue) {
 		return readInt(text, defaultValue, -1);
 	}
 	
+	/**
+	 * Funktion zum Einlesen eines int-Werts
+	 * @param text - String der bei der Eingabe zur Erlaeuterung steht
+	 * @param defaultValue - bei keiner Eingabe wird dieser Wert uebernommen und zurueckgegeben
+	 * @param min - kleinster beim einlesen zugelassener Wert
+	 * @return eingelesener int-Wert
+	 */
 	public static int readInt(String text, int defaultValue, int min) {
 		int result = 0;
 		String tmp = "";
@@ -107,19 +139,19 @@ public class ConsoleMenu {
 		return tree;
 	}
 
+	/**
+	 * Funktion zum uebergeben eines neuen B-Baums an das Menue
+	 * @param tree
+	 */
 	public void setTree(BTree tree) {
 		this.tree = tree;
 	}
 
-	public void setMenuItems(Map<Integer, String> menuItems) {
-		this.menuItems = menuItems;
-	}
-
-	public boolean isShowMenu() {
+	private boolean isShowMenu() {
 		return showMenu;
 	}
 
-	public void setShowMenu(boolean showMenu) {
+	private void setShowMenu(boolean showMenu) {
 		this.showMenu = showMenu;
 	}
 }

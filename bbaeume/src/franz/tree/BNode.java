@@ -44,11 +44,22 @@ public class BNode {
 			getEntries().add(element);
 	}
 	
+	/**
+	 * Funktion zum Einfuegen eines Eintrags in den Knoten
+	 * @param index Index an dem der Eintag eingefuegt werden soll
+	 * @param element Eintrag der in den Knoten eingefuegt wird
+	 */
 	public void addEntry(int index, NodeEntry element) {
 		if(element != null)
 			getEntries().add(index, element);
 	}
 	
+	/**
+	 * Funktion zum Ersetzen eines vorhandenen Eintrags durch einen neuen
+	 * @param index Index an dem der Eintag ersetzt werden soll
+	 * @param element Eintrag der in den Knoten eingesetzt wird
+	 * @return ersetzter Eintrag
+	 */
 	public NodeEntry setEntry(int index, NodeEntry element) {
 		if(element == null && index < getNumberOfEntries()) {
 			return removeEntry(index);
@@ -60,12 +71,16 @@ public class BNode {
 		}
 	}
 	
+	/**
+	 * Funktion zum Loeschen eines vorhandenen Eintrags
+	 * @return geloeschter Eintrag
+	 */
 	public NodeEntry removeEntry(int index) {
 		if(index > getNumberOfEntries() - 1) return null;
 		return getEntries().remove(index);
 	}
 	/**
-	 * 
+	 * Funktion, die direkt den Schluessel eines vorhandenen Knoteneintrags an der Stelle index zurueck gibt
 	 * @param index
 	 * @return Key-Value an der Stelle des Index <i>index</i>
 	 */
@@ -74,6 +89,11 @@ public class BNode {
 		return getEntries().get(index).getKey();
 	}
 	
+	/**
+	 * Funktion, die einen vorhandenn Knoteneintrag an der Stelle index zurueck gibt
+	 * @param index
+	 * @return Eintrag an der Stelle des Index <i>index</i>
+	 */
 	public NodeEntry getEntry(int index) {
 		if(index > getNumberOfEntries()-1 || index == -1) return null;
 		return getEntries().get(index);

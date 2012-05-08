@@ -19,10 +19,19 @@ public class BTree {
 	private int middle;
 	private BNode root = null;
 
+	/**
+	 * Konstruktor zur Initialisierung eines B-Baums mit der Ordnung order
+	 * @param order Ordnung des B-Baums
+	 */
 	public BTree(int order) {
 		setOrder(order);
 	}
 
+	/**
+	 * Funktion zum Suchen eines Schluessels in dem B-Baum
+	 * @param key zu suchender Schluessel
+	 * @return gibt den gesuchten Eintrag komplett zurueck. <br /> null, wenn nicht vorhanden
+	 */
 	public NodeEntry searchKey(int key) {
 		BNode node = searchKey(getRoot(), key);
 		if(node == null) {
@@ -45,7 +54,7 @@ public class BTree {
 	}
 
 	/**
-	 * 
+	 * Funktion zum Einfuegen eines Schluessels in den B-Baum
 	 * @param key Schluessel des Knotens, der eingefuegt werden soll
 	 * @return false wenn Schluessel schon vorhanden<br />true wenn das Einfuegen erfolgreich war
 	 */
@@ -54,7 +63,7 @@ public class BTree {
 	}
 	
 	/**
-	 * 
+	 * Funktion zum Einfuegen eines Schluessels mit dazugehoerigem Daten in den B-Baum
 	 * @param key Schluessel des Knotens, der eingefuegt werden soll
 	 * @param data Daten die zu dem Schluessel im Baum gespeichert werden sollen
 	 * @return false wenn Schluessel schon vorhanden<br />true wenn das Einfuegen erfolgreich war
@@ -64,7 +73,7 @@ public class BTree {
 	}
 	
 	/**
-	 * 
+	 * Funktion zum Einfuegen von einem NodeEntry in den B-Baum
 	 * @param entry Eintrag der eingefuegt werden soll
 	 * @return false wenn Schluessel schon vorhanden<br />true wenn das Einfuegen erfolgreich war
 	 */
@@ -106,10 +115,10 @@ public class BTree {
 			// BNode ist ein Knoten
 			int childPositionToInsert = node.getNextChildPositionForKey(entry.getKey());
 			
-			// Einfuegen in UnterKnoten
+			// Einfuegen in UnterKnoten (rekursiv)
 			insertEntry(node.getChild(childPositionToInsert), entry);
 		
-			// Unterknoten voll?
+			// Nach dem Einfuegen muss der Unterknoten daraufhin geprueft werden, ob er voll ist
 			if(node.getChild(childPositionToInsert).getNumberOfEntries() > order-1) {
 				splitTree(node, childPositionToInsert, node.getChild(childPositionToInsert));
 			}
@@ -142,6 +151,7 @@ public class BTree {
 		NodeEntry result = null;
 		
 		if (searchKey(key) == null) {
+			// Schluessel nicht vorhanden
 			return null;
 		}
 		
@@ -162,9 +172,6 @@ public class BTree {
 			checkNode(nodeWhereToDelete);
 		} else {												// Knoten zum Loeschen ist ein Knoten
 			//Ersetzen durch Inorder-Nachfolger
-			
-//			returnValue = nodeWhereToDelete.setEntry(keyEntryPosition, removeKey(nodeWhereToDelete.getChild(keyEntryPosition+1), getSmallestNextNode(nodeWhereToDelete.getChild(keyEntryPosition+1)).getKey(0)));
-			
 			returnValue = nodeWhereToDelete.removeEntry(keyEntryPosition);
 			nodeWhereToDelete.addEntry(keyEntryPosition, getSmallestNextNode(nodeWhereToDelete.getChild(keyEntryPosition+1)).getEntry(0));
 			
