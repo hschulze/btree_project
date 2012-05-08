@@ -9,12 +9,13 @@ import franz.utils.ConsoleMenu;
 public class BTreeStarter {
 
 	public static final boolean IS_DEBUG = false;
+	public static final boolean SHOW_TREE_NEXT_TO_MENU = false;
 	
 	public static void main(String[] args) {
 		System.out.printf("%20s%n", "Initiale Erzeugung des B-Baums");
-		BTree tree = new BTree(ConsoleMenu.readInt("Ordnung m des B-Baums [3]: ", 3, 3));
+		BTree tree = new BTree(ConsoleMenu.readInt("Ordnung m des B-Baums (mind. 3) [3]: ", 3, 3));
 		
-		ConsoleMenu console = new ConsoleMenu(tree, !IS_DEBUG);
+		ConsoleMenu console = new ConsoleMenu(tree, SHOW_TREE_NEXT_TO_MENU);
 
 		console.addMenuItem("Erzeuge einen neuen B-Baum", 1);
 		console.addMenuItem("Zeichne Baum", 2);
@@ -38,7 +39,7 @@ public class BTreeStarter {
 			//System.out.println("Auswahl: " + choice);
 			switch (choice) {
 				case 1:
-					tree = new BTree(ConsoleMenu.readInt("Ordnung m des B-Baums [3]: ", 3, 2));
+					tree = new BTree(ConsoleMenu.readInt("Ordnung m des B-Baums (mind. 3) [3]: ", 3, 3));
 					console.setTree(tree);
 					break;
 				case 2:
@@ -111,7 +112,7 @@ public class BTreeStarter {
 		if(tree.insertEntry(new NodeEntry(ConsoleMenu.readInt("Einzufuegender Schluessel: ")))) {
 			System.out.printf("%40s%n", "Schluessel erfolgreich eingefuegt");
 		} else {
-			System.out.printf("%40s%n", "Schluessel nicht eingefuegt");
+			System.out.printf("%40s%n", "Schluessel nicht eingefuegt, da dieser schon im Baum vorhanden ist");
 		}
 		tree.printTree();			
 	}

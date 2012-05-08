@@ -44,18 +44,29 @@ public class BTree {
 		}
 	}
 
+	/**
+	 * 
+	 * @param key Schluessel des Knotens, der eingefuegt werden soll
+	 * @return false wenn Schluessel schon vorhanden<br />true wenn das Einfuegen erfolgreich war
+	 */
 	public boolean insertEntry(int key) {
 		return insertEntry(new NodeEntry(key));
 	}
 	
+	/**
+	 * 
+	 * @param key Schluessel des Knotens, der eingefuegt werden soll
+	 * @param data Daten die zu dem Schluessel im Baum gespeichert werden sollen
+	 * @return false wenn Schluessel schon vorhanden<br />true wenn das Einfuegen erfolgreich war
+	 */
 	public boolean insertEntry(int key, String data) {
 		return insertEntry(new NodeEntry(key, data));
 	}
 	
 	/**
 	 * 
-	 * @param entry
-	 * @return true, if key is inserted successful
+	 * @param entry Eintrag der eingefuegt werden soll
+	 * @return false wenn Schluessel schon vorhanden<br />true wenn das Einfuegen erfolgreich war
 	 */
 	public boolean insertEntry(NodeEntry entry) {
 		if (getRoot() == null) {							// Noch kein Baum vorhanden
@@ -174,7 +185,7 @@ public class BTree {
 			int numberOfRightSiblingNodeEntries = parent.getChild(parentPosition+1) != null ? parent.getChild(parentPosition+1).getNumberOfEntries() : 0;
 			
 			if(numberOfLeftSiblingNodeEntries > getMinEntries() || numberOfRightSiblingNodeEntries > getMinEntries()) {
-				// Fall 2: nextChild besitzt nach dem Loeschen nur m-1 Schluessel && ein Geschwisterknoten besitzt mind. m+1 Schluessel => rotate (168 f)
+				// Fall 2: nextChild besitzt nach dem Loeschen nur m-1 Schluessel && ein Geschwisterknoten besitzt mind. m+1 Schluessel => rotate
 				if(numberOfLeftSiblingNodeEntries < numberOfRightSiblingNodeEntries) {
 					// Rotation mit dem rechten Geschwisterknoten
 					rotateRight(parent, parentPosition);
@@ -183,10 +194,13 @@ public class BTree {
 					rotateLeft(parent, parentPosition);
 				}
 			} else {
-				// Fall 3: nextChild besitzt nach dem Loeschen nur m-1 Schluessel && die Geschwisterknoten besitzen ebenfalls m Schluessel => merge (170 f)  !!! Beachte, wenn Wurzel !!!
+				// Fall 3: nextChild besitzt nach dem Loeschen nur m-1 Schluessel && die Geschwisterknoten besitzen ebenfalls m Schluessel => merge
 				merge(parent, parentPosition);
 				checkNode(parent);
 			} 
+		} else if(node.getParent() == null && node.getNumberOfEntries() == 0) {
+			// falls die urspruengliche Wurzel des Baums leer ist, wird eine neue gesetzt
+			setRoot(node.getChild(0));
 		}
 	}
 	
@@ -200,7 +214,6 @@ public class BTree {
 			rightNode = node.getChild(nodeKeyPosition);
 			rightNodePosition = nodeKeyPosition;
 			
-			//leftNode.addEntry(removeKey(node.getParent(), node.getParent().getKey(nodeKeyPosition)));			// Geht grundsaetzlich, außer dass das der Vater noch verschoben werden muss
 			leftNode.addEntry(node.removeEntry(nodeKeyPosition-1));
 		} else {
 			leftNode = node.getChild(nodeKeyPosition);
@@ -312,6 +325,11 @@ public class BTree {
 			sb.append(' ');
 	}
 
+	/**
+	 * Funktion zur Ermittlung der Breite des Knotens mit seinen Kindern
+	 * @param node Knoten von dem die Breite ermittelt werden soll
+	 * @return Breite des Knotens
+	 */
 	public int getWidth(BNode node) {
 		if (node == null)
 			return 0;
@@ -327,22 +345,35 @@ public class BTree {
 		return leftWidth + (ENTRY_WIDTH * node.getNumberOfEntries()) + rightWidth;
 	}
 
+	/**
+	 * Funktion erzeugt eine Ausgabe auf der Konsole, welche ein paar Informationen zu dem bestehenden B-Baum ausgibt
+	 */
 	public void printStats() {
 		System.out.println("Ausgabe der Statistik:");
 		System.out.printf("%25s: %2d\n", "Ordnung", getOrder());
 		System.out.printf("%25s: %2d\n", "Eintraege", getNumberOfTreeEntries());
 		System.out.printf("%25s: %2d\n", "MinEintraege/Knoten", getMinEntries());
+		System.out.printf("%25s: %2d\n", "MinKinder/Knoten", getMinEntries()+1);
 		System.out.printf("%25s: %2d\n", "MaxEintraege/Knoten", getOrder()-1);
+		System.out.printf("%25s: %2d\n", "MaxKinder/Knoten", getOrder());
 		System.out.printf("%25s: %2d\n", "MinHoehe", getMinHeight());
 		System.out.printf("%25s: %2d\n", "MaxHoehe", getMaxHeight());		
 	}
 
+	/**
+	 * Funktion mit der sich die kleinste moegliche Hoehe des bestehenden B-Baums ermitteln laesst.
+	 * @return kleinst moegliche Hoehe des B-Baums
+	 */
 	public int getMinHeight() {
-		return (int) (Math.ceil(Math.log(getNumberOfTreeEntries() + 1) / Math.log(order) - 1));
+		return getNumberOfTreeEntries() > 0 ? (int) (Math.ceil(Math.log(getNumberOfTreeEntries() + 1) / Math.log(order) - 1)) : 0;
 	}
 
+	/**
+	 * Funktion mit der sich die groesst moegliche Hoehe des bestehenden B-Baums ermitteln laesst.
+	 * @return groesst moegliche Hoehe des B-Baums
+	 */
 	public int getMaxHeight() {
-		return (int) (Math.floor(Math.log((double) ((getNumberOfTreeEntries() + 1) / 2)) / Math.log(Math.ceil((double) order / 2))) + 1);
+		return getNumberOfTreeEntries() > 0 ? (int) (Math.floor(Math.log((double) ((getNumberOfTreeEntries() + 1) / 2)) / Math.log(Math.ceil((double) order / 2))) + 1) : 0;
 	}
 
 	private int getOrder() {
@@ -385,5 +416,7 @@ public class BTree {
 
 	private void setRoot(BNode root) {
 		this.root = root;
+		if(root != null)
+			this.root.setParent(null);
 	}
 }

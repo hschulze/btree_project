@@ -37,7 +37,7 @@ public class ConsoleMenu {
 		
 		for(int i = 1; i < 10 || i <= getTree().getMaxHeight()+1; i++) {
 			if(getMenuItems().get(i) != null) {
-				sb.append(String.format("%45s [%d] ", menuItems.get(i), i));
+				sb.append(String.format(" %d) %-45s ", i, menuItems.get(i)));
 			} else {
 				sb.append(String.format("%50s", ""));
 			}
@@ -56,7 +56,7 @@ public class ConsoleMenu {
 		}
 		
 		if(menuItems.get(0) != null)
-			sb.append(String.format("%45s [%d]\n", menuItems.get(0), 0));
+			sb.append(String.format(" %d) %-45s \n", 0, menuItems.get(0)));
 		sb.append("-------------------------------------------------\n");
 		sb.append("Auswahl: ");
 		return readInt(sb.toString());
@@ -72,15 +72,20 @@ public class ConsoleMenu {
 	
 	public static int readInt(String text, int defaultValue, int min) {
 		int result = 0;
+		String tmp = "";
 		
 		do {
 			System.out.printf("%40s", text);
 			try {
 				BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-				result = Integer.parseInt(in.readLine());
+				tmp = in.readLine();
+				result = Integer.parseInt(tmp);
 			} catch (Exception e) {
-				if(defaultValue == -1) {
-					System.out.println("Fehler bei der Eingabe. Bitte erneut versuchen.");
+				if(defaultValue == -1 || tmp.length() > 0) {
+					System.out.print("Fehler bei der Eingabe. Bitte erneut einem gueltigen Integer-Wert eingeben");
+					if(defaultValue != -1)
+						System.out.print(" oder Eingabe fuer Default-Wert");
+					System.out.print('\n');
 					result = -1;
 				} else {
 					result = defaultValue;
