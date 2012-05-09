@@ -41,7 +41,7 @@ public class ConsoleMenu {
 	public int showMenu() {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("+++++++++++++++++++++++++++++++++++++++++++++++++ ");
+		sb.append("------------------------------------------------- ");
 		if(showMenu) {
 			for(int j = 0; j < getTree().getWidth(tree.getRoot()) + 14; j++) {
 				sb.append("#");
@@ -71,7 +71,7 @@ public class ConsoleMenu {
 		
 		if(menuItems.get(0) != null)
 			sb.append(String.format(" %d) %-45s \n", 0, menuItems.get(0)));
-		sb.append("-------------------------------------------------\n");
+		sb.append("=================================================\n");
 		sb.append("Auswahl: ");
 		return readInt(sb.toString());
 	}

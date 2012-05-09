@@ -3,7 +3,7 @@ package franz.tree;
 public class NodeEntry {
 
 	private int key;
-	private String data;
+	private Object data;
 	
 	/**
 	 * Konstruktor fuer einen B-Baum-Eintrag
@@ -17,7 +17,7 @@ public class NodeEntry {
 	 * @param key Schluessel mit dem der Eintrag erzeugt werden soll
 	 * @param data Daten die dem Schluessel beigefuegt werden sollen
 	 */
-	public NodeEntry(int key, String data) {
+	public NodeEntry(int key, Object data) {
 		this.key = key;
 		this.data = data;
 	}
@@ -34,7 +34,7 @@ public class NodeEntry {
 	 * Funktion die die Daten des Eintrags zurueckgibt
 	 * @return Daten des Eintrags
 	 */
-	public String getData() {
+	public Object getData() {
 		return data;
 	}
 

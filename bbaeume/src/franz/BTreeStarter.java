@@ -20,8 +20,8 @@ public class BTreeStarter {
 		console.addMenuItem("Erzeuge einen neuen B-Baum", 1);
 		console.addMenuItem("Zeichne Baum", 2);
 		console.addMenuItem("Fuelle den Baum mit Zufallszahlen", 3);
-		console.addMenuItem("Zahl hinzufuegen", 4);
-		console.addMenuItem("Zahl suchen", 6);
+		console.addMenuItem("Zahl suchen", 5);
+		console.addMenuItem("Zahl hinzufuegen", 6);
 		console.addMenuItem("Zahl loeschen", 7);
 		console.addMenuItem("Zeige B-Baum-Statistik", 9);
 		console.addMenuItem("Beenden", 0);
@@ -35,7 +35,7 @@ public class BTreeStarter {
 		
 		while(choice != 0) {
 			choice = console.showMenu();
-			System.out.print("+++++++++++++++++++++++++++++++++++++++++++++++++\n");
+			System.out.print("-------------------------------------------------\n");
 			//System.out.println("Auswahl: " + choice);
 			switch (choice) {
 				case 1:
@@ -48,11 +48,11 @@ public class BTreeStarter {
 				case 3:
 					fillWithRandomData(tree);
 					break;
-				case 4:
-					addOneNumber(tree);
+				case 5:
+					searchKey(tree);
 					break;
 				case 6:
-					searchKey(tree);
+					addOneNumber(tree);
 					break;
 				case 7:
 					deleteKey(tree);
