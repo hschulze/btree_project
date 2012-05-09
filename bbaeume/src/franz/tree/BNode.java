@@ -170,10 +170,6 @@ public class BNode {
 		return !isLeaf();
 	}
 	
-//	public List<NodeEntry> getEntrys() {
-//		return entrys;
-//	}
-	
 	public int getNumberOfEntries() {
 		for(int i = 0; i < getEntries().size(); i++) {
 			if(getEntries().get(i) == null) getEntries().remove(i);

@@ -81,7 +81,7 @@ public class BTree {
 		if (getRoot() == null) {							// Noch kein Baum vorhanden
 			setRoot(new BNode(null));
 		}
-		if(searchKey(entry.getKey()) != null) {		// Schluessel schon vorhanden
+		if(searchKey(entry.getKey()) != null) {				// Schluessel schon vorhanden
 			return false;
 		}
 		
@@ -145,7 +145,7 @@ public class BTree {
 	/**
 	 * 
 	 * @param key
-	 * @return true, if key is removed successful
+	 * @return true, wenn der Schluessel erfolgreich geloescht wurde
 	 */
 	public NodeEntry removeEntry(int key) {
 		NodeEntry result = null;
