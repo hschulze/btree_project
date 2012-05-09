@@ -114,7 +114,7 @@ public class BTreeStarter {
 		if(tree.insertEntry(new NodeEntry(ConsoleMenu.readInt("Einzufuegender Schluessel: ")))) {
 			System.out.printf("%40s%n", "Schluessel erfolgreich eingefuegt");
 		} else {
-			System.out.printf("%40s%n", "Schluessel nicht eingefuegt, da dieser schon im Baum vorhanden ist");
+			System.out.printf("%40s%n", "Scluessel nicht eingefuegt, da dieser schon im Baum vorhanden ist");
 		}
 		tree.printTree();
 	}
