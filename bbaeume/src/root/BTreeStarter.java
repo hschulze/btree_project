@@ -127,6 +127,7 @@ public class BTreeStarter {
 		NodeEntry searchResult = tree.searchKey(ConsoleMenu.readInt("Zu suchender Schluessel: "));
 		if(searchResult != null) {
 			System.out.printf("Schluessel mit dem Key %d gefunden\n und er enhaelt folgende Daten:\n         %s\n", searchResult.getKey(), searchResult.getData());
+			//System.out.printf("Der Schluessel befindet sich in dem Knoten:\n " + searchResult.);
 		} else {
 			System.out.printf("%40s%n", "Schluessel nicht gefunden");
 		}
@@ -138,12 +139,12 @@ public class BTreeStarter {
 	 */
 	private static void deleteKey(BTree tree) {
 		int keyToDelete = ConsoleMenu.readInt("Zu loeschender Schluessel: ", -1, 0);
-		System.out.println("Baum vorher");
+		System.out.println("Baum vor dem Loeschen");
 		tree.printTree();
 		NodeEntry removedEntry = tree.removeEntry(keyToDelete);
 		if(removedEntry != null) {
 			System.out.printf("%40s%n", "Schluessel erfolgreich geloescht");
-			System.out.println("Baum nachher");
+			System.out.println("Baum nach dem Loeschen:");
 			tree.printTree();
 			System.out.println("Geloeschter Schluessel:");
 			System.out.println("      key: " + removedEntry.getKey());
