@@ -1,4 +1,4 @@
-package franz.tree;
+package root.tree;
 
 public class NodeEntry {
 
