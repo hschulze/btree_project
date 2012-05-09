@@ -143,9 +143,9 @@ public class BTree {
 	}
 	
 	/**
-	 * 
-	 * @param key
-	 * @return true, wenn der Schluessel erfolgreich geloescht wurde
+	 * Funktion zum Loeschen eines Schluessels aus dem B-Baum
+	 * @param key zu loeschender Schluessel
+	 * @return Eintrag der den zu loeschenden Schluessel enthaelt 
 	 */
 	public NodeEntry removeEntry(int key) {
 		NodeEntry result = null;

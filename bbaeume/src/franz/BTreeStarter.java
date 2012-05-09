@@ -63,6 +63,7 @@ public class BTreeStarter {
 				default:
 					break;
 			}
+			console.waitForEnter();
 		}
 		
 		System.out.println("Anwendung wird beendet...");
@@ -114,7 +115,7 @@ public class BTreeStarter {
 		} else {
 			System.out.printf("%40s%n", "Schluessel nicht eingefuegt, da dieser schon im Baum vorhanden ist");
 		}
-		tree.printTree();			
+		tree.printTree();
 	}
 	
 	/**

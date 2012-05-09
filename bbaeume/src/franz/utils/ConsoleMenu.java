@@ -138,7 +138,14 @@ public class ConsoleMenu {
 	private BTree getTree() {
 		return tree;
 	}
-
+	
+	public void waitForEnter() {
+		try {
+			System.out.print("Weiter mit Enter...");
+			new BufferedReader(new InputStreamReader(System.in)).readLine();
+		} catch (Exception e) {;}
+	}
+	
 	/**
 	 * Funktion zum uebergeben eines neuen B-Baums an das Menue
 	 * @param tree
