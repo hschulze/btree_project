@@ -12,13 +12,15 @@ public class BNode {
 	private List<BNode> children;
 	
 	private BNode parent;
+	private int number;
 	
 	/**
 	 * Konstruktor fuer einen Knoten eines B-Baums
 	 * @param parent Knoten, der den Vaterknoten des Knotens darstellt
 	 */
-	public BNode(BNode parent) {
+	public BNode(BNode parent, int number) {
 		setParent(parent);
+		setNumber(number);
 	}
 	
 	private List<NodeEntry> getEntries() {
@@ -199,5 +201,13 @@ public class BNode {
 	
 	public void setParent(BNode parent) {
 		this.parent = parent;
+	}
+
+	public int getNumber() {
+		return number;
+	}
+
+	public void setNumber(int number) {
+		this.number = number;
 	}
 }

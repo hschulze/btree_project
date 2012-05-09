@@ -15,6 +15,7 @@ public class BTree {
 	 */
 	private int order;
 	private int numberOfTreeEntries = 0;
+	private int numberOfTreeNodes = 0;
 	private int minEntries;
 	private int middle;
 	private BNode root = null;
@@ -79,7 +80,7 @@ public class BTree {
 	 */
 	public boolean insertEntry(NodeEntry entry) {
 		if (getRoot() == null) {							// Noch kein Baum vorhanden
-			setRoot(new BNode(null));
+			setRoot(new BNode(null, numberOfTreeNodes++));
 		}
 		if(searchKey(entry.getKey()) != null) {				// Schluessel schon vorhanden
 			return false;
@@ -88,7 +89,7 @@ public class BTree {
 		insertEntry(getRoot(), entry);
 		
 		if (getRoot().getNumberOfEntries() > getOrder()-1) {
-			BNode newRoot = new BNode(null);
+			BNode newRoot = new BNode(null, numberOfTreeNodes++);
 			splitTree(newRoot, 0, getRoot());
 			setRoot(newRoot);
 		}
@@ -131,7 +132,7 @@ public class BTree {
 		
 		node.addEntry(childPositionToSplit, subNodeToSplit.removeEntry(getMiddle()));
 				
-		rightSubTree = new BNode(node);
+		rightSubTree = new BNode(node, numberOfTreeNodes++);
 		while(getMiddle() < subNodeToSplit.getNumberOfEntries()) {
 			rightSubTree.addChild(subNodeToSplit.removeChild(getMiddle()+1));
 			rightSubTree.addEntry(subNodeToSplit.removeEntry(getMiddle()));
@@ -308,9 +309,9 @@ public class BTree {
 			if (depth == 1) {
 				fillSpaces(sb, getWidth(node.getChild(i)));
 				if (i == 0 && node.getNumberOfEntries() == 1) { 								// nur ein Eintrag in Knoten
-					sb.append(String.format("(%"+(ENTRY_WIDTH-2)+"s)", node.getKey(i)));
+					sb.append(String.format("[%2d](%"+(ENTRY_WIDTH-2)+"s)", node.getNumber(), node.getKey(i)));
 				} else if (i == 0) { 															// ist erster Eintrag in Knoten
-					sb.append(String.format("(%"+(ENTRY_WIDTH-2)+"s ", node.getKey(i)));
+					sb.append(String.format("[%2d](%"+(ENTRY_WIDTH-2)+"s ", node.getNumber(), node.getKey(i)));
 				} else if (i + 1 == node.getNumberOfEntries()) { 								// ist letzer Eintrag in Knoten
 					sb.append(String.format(" %"+(ENTRY_WIDTH-2)+"s)", node.getKey(i)));
 				} else {
@@ -349,7 +350,7 @@ public class BTree {
 			if (i+1 == node.getNumberOfEntries())
 				rightWidth += getWidth(node.getChild(i+1));
 		}
-		return leftWidth + (ENTRY_WIDTH * node.getNumberOfEntries()) + rightWidth;
+		return leftWidth + 4 + (ENTRY_WIDTH * node.getNumberOfEntries()) + rightWidth;
 	}
 
 	/**
@@ -425,5 +426,13 @@ public class BTree {
 		this.root = root;
 		if(root != null)
 			this.root.setParent(null);
+	}
+
+	public int getNumberOfTreeNodes() {
+		return numberOfTreeNodes;
+	}
+
+	public void setNumberOfTreeNodes(int numberOfTreeNodes) {
+		this.numberOfTreeNodes = numberOfTreeNodes;
 	}
 }
