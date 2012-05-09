@@ -1,10 +1,11 @@
-package franz;
+package root;
 
 import java.util.Random;
 
-import franz.tree.BTree;
-import franz.tree.NodeEntry;
-import franz.utils.ConsoleMenu;
+import root.tree.BTree;
+import root.tree.NodeEntry;
+import root.utils.ConsoleMenu;
+
 
 public class BTreeStarter {
 
