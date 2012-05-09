@@ -2,6 +2,7 @@ package root;
 
 import java.util.Random;
 
+import root.tree.BNode;
 import root.tree.BTree;
 import root.tree.NodeEntry;
 import root.utils.ConsoleMenu;
@@ -124,10 +125,12 @@ public class BTreeStarter {
 	 * @param tree BTree-Objekt in dem ein Schluessel gesucht wird
 	 */
 	public static void searchKey(BTree tree) {
-		NodeEntry searchResult = tree.searchKey(ConsoleMenu.readInt("Zu suchender Schluessel: "));
-		if(searchResult != null) {
-			System.out.printf("Schluessel mit dem Key %d gefunden\n und er enhaelt folgende Daten:\n         %s\n", searchResult.getKey(), searchResult.getData());
-			//System.out.printf("Der Schluessel befindet sich in dem Knoten:\n " + searchResult.);
+		int key = ConsoleMenu.readInt("Zu suchender Schluessel: ");
+		BNode searchResultNode = tree.searchKey(key);
+		
+		if(searchResultNode != null) {
+			NodeEntry searchResultEntry = searchResultNode.getEntry(searchResultNode.containsKey(key));
+			System.out.printf("Schluessel mit dem Key %d gefunden im Knoten %d\n", searchResultEntry.getKey(), searchResultNode.getNumber());
 		} else {
 			System.out.printf("%40s%n", "Schluessel nicht gefunden");
 		}

@@ -2,7 +2,7 @@ package root.tree;
 
 public class BTree {
 
-	private static final int ENTRY_WIDTH = 5;
+	private static final int ENTRY_WIDTH = 8;
 
 	private static final int TEXT_WIDTH = 13;
 	
@@ -31,15 +31,10 @@ public class BTree {
 	/**
 	 * Funktion zum Suchen eines Schluessels in dem B-Baum
 	 * @param key zu suchender Schluessel
-	 * @return gibt den gesuchten Eintrag komplett zurueck. <br /> null, wenn nicht vorhanden
+	 * @return gibt den Knoten komplett zurueck, in dem sich der gesuchte Schluessel befindet <br /> null, wenn nicht vorhanden
 	 */
-	public NodeEntry searchKey(int key) {
-		BNode node = searchKey(getRoot(), key);
-		if(node == null) {
-			return null;
-		} else {
-			return node.getEntry(node.containsKey(key));
-		}
+	public BNode searchKey(int key) {
+		return searchKey(getRoot(), key);
 	}
 	
 	private BNode searchKey(BNode node, int key) {
@@ -309,13 +304,13 @@ public class BTree {
 			if (depth == 1) {
 				fillSpaces(sb, getWidth(node.getChild(i)));
 				if (i == 0 && node.getNumberOfEntries() == 1) { 								// nur ein Eintrag in Knoten
-					sb.append(String.format("[%2d](%"+(ENTRY_WIDTH-2)+"s)", node.getNumber(), node.getKey(i)));
+					sb.append(String.format("%2d´(%"+(ENTRY_WIDTH-5)+"s)", node.getNumber(), node.getKey(i)));
 				} else if (i == 0) { 															// ist erster Eintrag in Knoten
-					sb.append(String.format("[%2d](%"+(ENTRY_WIDTH-2)+"s ", node.getNumber(), node.getKey(i)));
+					sb.append(String.format("%2d´(%"+(ENTRY_WIDTH-5)+"s ", node.getNumber(), node.getKey(i)));
 				} else if (i + 1 == node.getNumberOfEntries()) { 								// ist letzer Eintrag in Knoten
-					sb.append(String.format(" %"+(ENTRY_WIDTH-2)+"s)", node.getKey(i)));
+					sb.append(String.format("    %"+(ENTRY_WIDTH-5)+"s)", node.getKey(i)));
 				} else {
-					sb.append(String.format(" %"+(ENTRY_WIDTH-2)+"s ", node.getKey(i)));
+					sb.append(String.format("    %"+(ENTRY_WIDTH-5)+"s ", node.getKey(i)));
 				}
 				if(i+1 == node.getNumberOfEntries())
 					fillSpaces(sb, getWidth(node.getChild(i+1)));
@@ -350,7 +345,7 @@ public class BTree {
 			if (i+1 == node.getNumberOfEntries())
 				rightWidth += getWidth(node.getChild(i+1));
 		}
-		return leftWidth + 4 + (ENTRY_WIDTH * node.getNumberOfEntries()) + rightWidth;
+		return leftWidth + (ENTRY_WIDTH * node.getNumberOfEntries()) + rightWidth;
 	}
 
 	/**
