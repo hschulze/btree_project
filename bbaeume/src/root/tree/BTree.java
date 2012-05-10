@@ -94,18 +94,21 @@ public class BTree {
 	
 	private void insertEntry(BNode node, NodeEntry entry) {
 		if(node.getNumberOfChildren() == 0) {
-			// BNode ist ein Blatt		
+			// BNode ist ein Blatt
+			int positionToInsert = 0;
 			for(int i = 0; i < order; i++) {
 				if(node.getNumberOfEntries() > i) {												// wenn der Eintrag i existiert
 					if(entry.getKey() < node.getKey(i)) {
-						node.addEntry(i, entry);
+						positionToInsert = i;
 						break;
 					}
 				} else {
-					node.addEntry(i, entry);
+					positionToInsert = i;
 					break;
 				}
 			}
+			node.addEntry(positionToInsert, entry);
+			
 			// Fertig mit Eingefuegen im Blatt
 		} else {
 			// BNode ist ein Knoten
@@ -121,7 +124,7 @@ public class BTree {
 			
 		}	
 	}
-
+	
 	private void splitTree(BNode node, int childPositionToSplit, BNode subNodeToSplit) {
 		BNode rightSubTree = null;
 		
